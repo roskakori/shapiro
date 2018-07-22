@@ -60,3 +60,22 @@ def test_fails_on_adding_lexicon_entry_with_unknown_rating():
     with pytest.raises(ValueError) as error:
         lexicon._append_lexicon_entry_from_row(['x', '', 'unknown'])
     assert error.match(r"^name 'unknown' for enum _Rating must be one of: .+$")
+
+
+def test_fails_on_duplicate_topic():
+    class _BrokenTopic(Enum):
+        some, SOME = range(2)
+
+    with pytest.raises(ValueError) as error:
+        analysis.Lexicon(_BrokenTopic, _Rating)
+    assert error.match(r"^case insensitive name 'some' for enum _BrokenTopic must be unique$")
+
+
+def test_can_replace_synonyms():
+    synonyms = {
+        'laptop': 'notebook',
+        'junk': 'crap',
+    }
+    compiled_synonyms = analysis.compiled_synonym_source_to_target_map(synonyms)
+    assert 'this notebook rocks' == analysis.replaced_synonyms('this laptop rocks', compiled_synonyms)
+    assert 'nothing to see here' == analysis.replaced_synonyms('nothing to see here', compiled_synonyms)

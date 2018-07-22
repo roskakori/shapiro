@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Shapiro - lexicon based sentence oriented sentiment analysis.
+"""
 from pkg_resources import get_distribution, DistributionNotFound
 
 try:

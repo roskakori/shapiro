@@ -1,6 +1,9 @@
 """
 Various tools to make life easier.
 """
+import logging
+
+log = logging.getLogger('shapiro')
 
 
 def is_close(a: float, b: float, relative_tolerance: float=1e-09, absolute_tolerance: float=0.0) -> bool:

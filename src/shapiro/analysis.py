@@ -2,15 +2,18 @@
 Types and functions for sentiment analysis.
 """
 import csv
+import logging
 import re
-from enum import Enum, EnumMeta
-from typing import Any, Dict, List, Union
+from enum import Enum
+from typing import Any, Dict, List, Pattern, Union
 
 import spacy
 from spacy.language import Language
 from spacy.tokens import Token
 
 from shapiro import tools
+
+_log = tools.log
 
 
 class Rating(Enum):
@@ -82,7 +85,8 @@ class Lexicon:
             for enum_entry in enum_type:
                 enum_name = enum_entry.name.lower()
                 if enum_name in result:
-                    raise ValueError('name %r for enum %s must be unique' % (enum_name, enum_type.__name__))
+                    raise ValueError('case insensitive name %r for enum %s must be unique'
+                                     % (enum_name, enum_type.__name__))
                 result[enum_name] = enum_entry
             return result
 
@@ -174,14 +178,53 @@ class Lexicon:
         return result
 
 
+def compiled_synonym_source_to_target_map(synonym_source_to_target_map: Dict[str, str]) -> Dict[Pattern, str]:
+    result = {}
+    if synonym_source_to_target_map is not None:
+        for source_text, target_text in synonym_source_to_target_map.items():
+            try:
+                source_regex = re.compile(r'\b' + source_text + r'\b')
+            except re.error as error:
+                raise ValueError('cannot convert %r to regular expression: %s' % (source_text, error))
+            result[source_regex] = target_text
+    return result
+
+
+def replaced_synonyms(sentence: str, synonym_source_pattern_to_target_map: Dict[Pattern, str]) -> str:
+    assert sentence is not None
+    assert synonym_source_pattern_to_target_map is not None
+    result = sentence
+    is_debug = _log.isEnabledFor(logging.DEBUG)
+    for source_word_pattern, target_word in synonym_source_pattern_to_target_map.items():
+        possible_modified_sentence = source_word_pattern.sub(target_word, result)
+        if possible_modified_sentence != result:
+            if is_debug:
+                _log.debug('replaced synonym %s by %r', source_word_pattern.pattern, target_word)
+            result = possible_modified_sentence
+    return result
+
+
 class SentimentContext:
-    def __init__(self, language: Union[Language, str], lexicon: Lexicon):
+    def __init__(self, language: Union[Language, str], lexicon: Lexicon, synonyms: Dict[str, str]=None):
         assert language is not None
         if type(language) == str:
             self._language = spacy.load(language)
         else:
             self._language = language
+        self._synonyms = {}
+        if synonyms is not None:
+            for from_text, to_text in synonyms:
+                try:
+                    from_regex = re.compile(r'\b' + from_text + r'\b')
+                except re.error as error:
+                    raise ValueError('cannot convert %r to regular expression: %s' % (from_text, error))
+                self._synonyms[from_regex] = to_text
+
 
     @property
-    def language(self):
+    def language(self) -> Language:
         return self._language
+
+    @property
+    def synonyms(self) -> Dict[Pattern, str]:
+        return self._synonyms
