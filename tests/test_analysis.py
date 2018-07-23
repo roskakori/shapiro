@@ -79,3 +79,8 @@ def test_can_replace_synonyms():
     compiled_synonyms = analysis.compiled_synonym_source_to_target_map(synonyms)
     assert 'this notebook rocks' == analysis.replaced_synonyms('this laptop rocks', compiled_synonyms)
     assert 'nothing to see here' == analysis.replaced_synonyms('nothing to see here', compiled_synonyms)
+
+
+def test_can_unify_emojis():
+    assert 'smile: __emoji_slight_smile , smile more: __emoji_slight_smile , smile again: __emoji_slight_smile ' == \
+        analysis.unified_emojis('smile: :-), smile more: ^^, smile again: \U0001F642')

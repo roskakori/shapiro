@@ -13,6 +13,9 @@ from spacy.tokens import Token
 
 from shapiro import tools
 
+#: Prefix used to mark unified emojis.
+EMOJI_PREFIX = '__emoji_'
+
 _log = tools.log
 
 
@@ -25,6 +28,29 @@ class Rating(Enum):
     GOOD = 2
     VERY_GOOD = 3
 
+
+_WESTERN_SMILEY_TO_EMOJI_NAME_MAP = {
+    ':)': 'slight_smile',
+    ':-)': 'slight_smile',
+    '=)': 'slight_smile',
+    ':(': 'slight_frown',
+    ':-(': 'slight_frown',
+    ':D': 'smile',
+    ':-D': 'smile',
+    ':P': 'stuck_out_tongue',
+    ':-P': 'stuck_out_tongue',
+    ';)': 'wink',
+    ';-)': 'wink',
+}
+
+_EASTERN_SMILEY_TO_EMOJI_NAME_MAP = {
+    '^^': 'slight_smile',
+    '^_^': 'slight_smile',
+}
+#: Unicode emojis, see also: http://www.unicode.org/emoji/charts/full-emoji-list.html
+_EMOJI_TO_NAME_MAP = {
+    '\U0001F642': 'slight_smile',  # ☺
+}
 
 class LexiconEntry:
     _IS_REGEX_REGEX = re.compile(r'.*[.+*\[$^\\]')
@@ -201,6 +227,26 @@ def replaced_synonyms(sentence: str, synonym_source_pattern_to_target_map: Dict[
             if is_debug:
                 _log.debug('replaced synonym %s by %r', source_word_pattern.pattern, target_word)
             result = possible_modified_sentence
+    return result
+
+
+def unified_emojis(text: str, unify_western_smileys=True, unify_eastern_smileys=True) -> str:
+    assert text is not None
+
+    emoji_to_name_map = dict(_EMOJI_TO_NAME_MAP)
+    if unify_eastern_smileys:
+        emoji_to_name_map.update(_EASTERN_SMILEY_TO_EMOJI_NAME_MAP)
+    if unify_western_smileys:
+        emoji_to_name_map.update(_WESTERN_SMILEY_TO_EMOJI_NAME_MAP)
+    result = text
+
+    is_debug = _log.isEnabledFor(logging.DEBUG)
+    for source_text, target_text in emoji_to_name_map.items():
+        target_text = EMOJI_PREFIX + target_text + ' '
+        old_result = result
+        result = result.replace(source_text, target_text)
+        if is_debug and (result != old_result):
+            _log.debug('unified emoji %r to %s', source_text, target_text)
     return result
 
 
