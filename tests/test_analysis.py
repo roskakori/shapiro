@@ -28,6 +28,9 @@ class _Rating(Enum):
 
 
 def _token_for(nlp: Language, word: str) -> Token:
+    """
+    Create a token for ``word``.
+    """
     # TODO: Check if there is a more efficient way to do this.
     return next(nlp(word).sents)[0]
 
@@ -69,3 +72,8 @@ def test_fails_on_duplicate_topic():
     with pytest.raises(ValueError) as error:
         analysis.Lexicon(_BrokenTopic, _Rating)
     assert error.match(r"^case insensitive name 'some' for enum _BrokenTopic must be unique$")
+
+
+def test_can_convert_lexicon_entry_to_repr():
+    lexicon_entry = analysis.LexiconEntry('tasty', _Topic.FOOD, analysis.Rating.GOOD)
+    assert 'LexiconEntry(tasty, topic=FOOD, rating=GOOD)' == repr(lexicon_entry)

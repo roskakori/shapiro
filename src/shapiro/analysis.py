@@ -62,7 +62,7 @@ class LexiconEntry:
         return result
 
     def __str__(self) -> str:
-        result = 'LexiconEntry(%s, word_type=%s' % (self.lemma, self.word_type.name)
+        result = 'LexiconEntry(%s' % self.lemma
         if self.topic is not None:
             result += ', topic=%s' % self.topic.name
         if self.rating is not None:
