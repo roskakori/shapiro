@@ -84,3 +84,19 @@ def test_can_replace_synonyms():
 def test_can_unify_emojis():
     assert 'smile: __emoji_slight_smile , smile more: __emoji_slight_smile , smile again: __emoji_slight_smile ' == \
         analysis.unified_emojis('smile: :-), smile more: ^^, smile again: \U0001F642')
+
+
+def test_can_replace_abbreviations():
+    abbreviation_to_long_form_map = {
+        'ca': 'circa',  # German/Latin for "approximately"
+        'ev': 'eventuell',  # German for "possibly"
+        'z.B': 'zum Beispiel',  # German for "zum Beispiel"
+    }
+    abbreviation_pattern_to_long_form_map = \
+        analysis.compiled_abbreviation_to_long_form_map(abbreviation_to_long_form_map)
+    assert len(abbreviation_to_long_form_map) == len(abbreviation_pattern_to_long_form_map)
+
+    assert 'Das wäre eventuell angenehm' \
+        == analysis.replaced_abbreviations('Das wäre ev. angenehm', abbreviation_pattern_to_long_form_map)
+    assert 'sehr freundlich, zum Beispiel Josef' \
+        == analysis.replaced_abbreviations('sehr freundlich, z.B. Josef', abbreviation_pattern_to_long_form_map)
