@@ -14,7 +14,7 @@ from spacy.tokens import Token
 from shapiro import tools
 
 #: Prefix used to mark unified emojis.
-EMOJI_PREFIX = '__emoji_'
+EMOJI_PREFIX = 'emoji__'
 
 _log = tools.log
 
@@ -119,3 +119,4 @@ def unified_emojis(text: str, unify_western_smileys=True, unify_eastern_smileys=
         if is_debug and (result != old_result):
             _log.debug('unified emoji %r to %s', source_text, target_text)
     return result
+

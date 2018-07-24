@@ -16,11 +16,12 @@ def test_can_replace_synonyms():
 
 
 def test_can_unify_emojis():
-    assert 'smile: __emoji_slight_smile , smile more: __emoji_slight_smile , smile again: __emoji_slight_smile ' == \
+    assert 'smile: emoji__slight_smile , smile more: emoji__slight_smile , smile again: emoji__slight_smile ' == \
         preprocess.unified_emojis('smile: :-), smile more: ^^, smile again: \U0001F642')
 
 
 def test_can_replace_abbreviations():
+    # NOTE: By now this are fictional examples because as of version 2.0.11 spaCy supports them out of the box.
     abbreviation_to_long_form_map = {
         'ca': 'circa',  # German/Latin for "approximately"
         'ev': 'eventuell',  # German for "possibly"
