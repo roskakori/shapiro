@@ -23,7 +23,8 @@ Shapiro's goals are:
   based languages (like negators and intensifiers)
 * provide means to assign sentiment information to idioms
 * (long term) provide ways to model a grammar for more advanced sentiment
-  analysis similar to the one described
+  analysis similar to the one described Bing Liu (2015) "Sentiment Analysis:
+  Mining Opinions, Sentiments, and Emotions".
 
 Currently it provides basic support for:
 
