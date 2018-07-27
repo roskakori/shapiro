@@ -3,17 +3,37 @@ shapiro
 =======
 
 
-lexicon based sentiment analysis
+Lexicon based sentiment analysis.
 
 
-Description
-===========
+Overview
+========
 
-A longer description of your project goes here...
+Shapiro provides building blocks for sentiment analysis. The current
+implementation is a improved variant of code examples from a talk about
+[Introduction to sentiment analysis with spaCy](https://github.com/roskakori/talks/blob/master/europython/sentiment_analysis/introduction_to_sentiment_analysis.ipynb)
+I gave at the [EuroPython 2018](https://ep2018.europython.eu) conference.
 
+Shapiro's goals are:
 
-Note
-====
+* provide functions for common preprocessing tasks like replacing synonyms
+  and unifying emojis/smiley codes
+* provide means to read a sentiment lexicon and match tokens with it
+* provide ways to model domain independent sentiment specific parts of Latin
+  based languages (like negators and intensifiers)
+* provide means to assign sentiment information to idioms
+* (long term) provide ways to model a grammar for more advanced sentiment
+  analysis similar to the one described
 
-This project has been set up using PyScaffold 3.0.3. For details and usage
-information on PyScaffold see http://pyscaffold.org/.
+Currently it provides basic support for:
+
+* Users can provide lexicons (in CSV format) to assign topics and ratings to
+  sentiment words
+* Negators, intensifiers and diminishers (and combinations of them). Currently
+  there is support for English and German. Adding more languages based on Latin
+  should be possible.
+* Lemmatization, part of speech tagging and basic language modelling by using
+  [spaCy](https://spacy.io).
+
+This is a work in progress and features might be added and changed as seem
+fit. So the API is a moving target.
