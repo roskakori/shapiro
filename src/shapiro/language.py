@@ -1,7 +1,9 @@
 """
 Language specific settings
 """
-from shapiro.common import Rating
+from spacy.token import Token
+from shapiro.common import Rating, ranged_rating
+from shapiro.tools import signum
 
 
 class LanguageSentiment:
@@ -10,6 +12,20 @@ class LanguageSentiment:
     negatives = []
     positives = []
     turners = []
+
+    @staticmethod
+    def diminished(rating: Rating) -> Rating:
+        if abs(rating.value) > 1:
+            return ranged_rating(rating.value - signum(rating.value))
+        else:
+            return rating
+
+    @staticmethod
+    def intensified(rating: Rating) -> Rating:
+        if abs(rating.value) > 1:
+            return ranged_rating(rating.value + signum(rating.value))
+        else:
+            return rating
 
 
 class EnglishSentiment(LanguageSentiment):
@@ -46,13 +62,23 @@ class EnglishSentiment(LanguageSentiment):
         'no',
         'not',
     ]
+    negators = {
+        'no',
+        'not',
+        'none',
+    }
+
     @staticmethod
     def is_intensifier(token: Token) -> bool:
-        return token.lemma_.lower() in INTENSIFIERS
+        return token.lemma_.lower() in EnglishSentiment.intensifiers
 
     @staticmethod
     def is_diminisher(token: Token) -> bool:
-        return token.lemma_.lower() in DIMINISHERS
+        return token.lemma_.lower() in EnglishSentiment.diminishers
+
+    @staticmethod
+    def is_negation(token: Token) -> bool:
+        return token.lemma_.lower() in EnglishSentiment.negators
 
 
 class GermanSentiment(LanguageSentiment):

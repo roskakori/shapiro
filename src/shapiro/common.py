@@ -12,3 +12,10 @@ class Rating(Enum):
     SOMEWHAT_GOOD = 1
     GOOD = 2
     VERY_GOOD = 3
+
+_MIN_RATING_VALUE = Rating.VERY_BAD.value
+_MAX_RATING_VALUE = Rating.VERY_GOOD.value
+
+
+def ranged_rating(rating_value: int) -> Rating:
+    return Rating(min(_MAX_RATING_VALUE, max(_MIN_RATING_VALUE, rating_value)))
