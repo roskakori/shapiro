@@ -49,7 +49,9 @@ To use shapiro, you need Python and spaCy. The easiest way to get it is:
 2. Install spaCy::
 
     conda install -c conda-forge spacy
+3. Install Tox::
 
+    conda install -c conda-forge tox
 3. Download the language models you need. For example to get English and
    German run::
 

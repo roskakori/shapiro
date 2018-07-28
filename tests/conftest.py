@@ -10,12 +10,22 @@ import spacy.language
 from pytest import fixture
 
 
+_PROJECT_FOLDER = os.path.dirname(os.path.dirname(__file__))
+_DATA_FOLDER = os.path.join(_PROJECT_FOLDER, 'data')
 _TEST_DATA_FOLDER = os.path.dirname(__file__)
+
+
+def data_path(name: str) -> str:
+    """
+    Folder where example data to read are located.
+    """
+    assert name is not None
+    return os.path.join(_DATA_FOLDER, name)
 
 
 def test_data_path(name: str) -> str:
     """
-    Folder where test data to read are located."
+    Folder where test data to read are located.
     """
     assert name is not None
     return os.path.join(_TEST_DATA_FOLDER, name)
@@ -23,7 +33,7 @@ def test_data_path(name: str) -> str:
 
 @fixture
 def en_restauranteering_csv_path():
-    return test_data_path('en_restauranteering.csv')
+    return data_path('en_restauranteering.csv')
 
 @fixture
 def restaurant_feedback_txt_path():
