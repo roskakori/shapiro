@@ -2,7 +2,6 @@
 Types and functions for sentiment analysis.
 """
 import csv
-import logging
 import re
 from enum import Enum
 from typing import Any, Dict, List, Pattern, Union
@@ -12,19 +11,10 @@ from spacy.language import Language
 from spacy.tokens import Token
 
 from shapiro import tools
+from shapiro.common import Rating
 
 
 _log = tools.log
-
-
-class Rating(Enum):
-    VERY_BAD = -3
-    BAD = -2
-    SOMEWHAT_BAD = -1
-    UNKNOWN = 0
-    SOMEWHAT_GOOD = 1
-    GOOD = 2
-    VERY_GOOD = 3
 
 
 class LexiconEntry:
