@@ -95,6 +95,17 @@ def compiled_abbreviation_to_long_form_map(abbreviation_without_dot_to_long_form
 
 
 def replaced_abbreviations(sentence: str, abbreviation_pattern_to_full_text_map: Dict[str, str]) -> str:
+    """
+    Expand abbreviations terminated with a dot to its long form. Ideally spaCy
+    already supports all the abbreviations you need, but in case some are
+    missing, sentence borders might not be detected correctly anymore.
+
+    This function provides a quick work around to deal with this situation.
+
+    For a more permanent solution consider extending spaCy's exception lists,
+    for example
+    https://github.com/explosion/spaCy/blob/master/spacy/lang/de/tokenizer_exceptions.py.
+    """
     assert sentence is not None
     assert abbreviation_pattern_to_full_text_map is not None
 
