@@ -46,6 +46,13 @@ class EnglishSentiment(LanguageSentiment):
         'no',
         'not',
     ]
+    @staticmethod
+    def is_intensifier(token: Token) -> bool:
+        return token.lemma_.lower() in INTENSIFIERS
+
+    @staticmethod
+    def is_diminisher(token: Token) -> bool:
+        return token.lemma_.lower() in DIMINISHERS
 
 
 class GermanSentiment(LanguageSentiment):
