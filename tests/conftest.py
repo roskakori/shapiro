@@ -35,6 +35,9 @@ def test_data_path(name: str) -> str:
 def en_restauranteering_csv_path():
     return data_path('en_restauranteering.csv')
 
+@fixture
+def restaurant_feedback_txt_path():
+    return test_data_path("restaurant_feedback.txt")
 
 @fixture
 def nlp_en() -> spacy.language.Language:
