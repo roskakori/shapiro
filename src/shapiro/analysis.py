@@ -13,7 +13,6 @@ from spacy.tokens import Token
 from shapiro import tools
 from shapiro.common import Rating
 
-
 _log = tools.log
 
 
@@ -184,7 +183,6 @@ class SentimentContext:
                 except re.error as error:
                     raise ValueError('cannot convert %r to regular expression: %s' % (from_text, error))
                 self._synonyms[from_regex] = to_text
-
 
     @property
     def language(self) -> Language:
