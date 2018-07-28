@@ -1,15 +1,9 @@
 """
 Functions to preprocess sentences for sentiment analysis.
 """
-import csv
 import logging
 import re
-from enum import Enum
-from typing import Any, Dict, List, Pattern, Union
-
-import spacy
-from spacy.language import Language
-from spacy.tokens import Token
+from typing import Dict, Pattern
 
 from shapiro import tools
 
@@ -88,13 +82,16 @@ def _replaced(name: str, sentence: str, source_pattern_to_target_word_map: Dict[
     return result
 
 
-def compiled_abbreviation_to_long_form_map(abbreviation_without_dot_to_long_form_map: Dict[str, str]) -> Dict[Pattern, str]:
+def compiled_abbreviation_to_long_form_map(
+        abbreviation_without_dot_to_long_form_map: Dict[str, str]
+        ) -> Dict[Pattern, str]:
     assert abbreviation_without_dot_to_long_form_map is not None
 
     return _compiled_source_pattern_to_target_word_map('abbreviation', abbreviation_without_dot_to_long_form_map, r'\.')
 
 
-def replaced_abbreviations(sentence: str, abbreviation_pattern_to_full_text_map: Dict[str, str]) -> str:
+def replaced_abbreviations(sentence: str,
+                           abbreviation_pattern_to_full_text_map: Dict[str, str]) -> str:
     """
     Expand abbreviations terminated with a dot to its long form. Ideally spaCy
     already supports all the abbreviations you need, but in case some are
@@ -130,4 +127,3 @@ def unified_emojis(text: str, unify_western_smileys=True, unify_eastern_smileys=
         if is_debug and (result != old_result):
             _log.debug('unified emoji %r to %s', source_text, target_text)
     return result
-
