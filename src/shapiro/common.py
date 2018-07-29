@@ -13,6 +13,12 @@ class Rating(Enum):
     GOOD = 2
     VERY_GOOD = 3
 
+
+# FIXME: Remove this and make all functions using it able to work with a dynamic topic system.
+class RestaurantTopic(Enum):
+    GENERAL, FOOD, HYGIENE, SERVICE, VALUE = range(5)
+
+
 _MIN_RATING_VALUE = Rating.VERY_BAD.value
 _MAX_RATING_VALUE = Rating.VERY_GOOD.value
 

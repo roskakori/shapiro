@@ -66,7 +66,7 @@ class LexiconEntry:
 
 
 class Lexicon:
-    def __init__(self, topics: Enum, ratings: Enum):
+    def __init__(self, topics: Enum, ratings: Enum=Rating):
         assert topics is not None
         assert ratings is not None
 

@@ -5,10 +5,11 @@ from enum import Enum
 
 import pytest
 from spacy.language import Language
-from spacy.tokens.token import Token
+from spacy.tokens import Token
 
 from shapiro import analysis
 from shapiro import tools
+from shapiro.common import Rating
 
 
 _CHICKEN = 'chicken'
@@ -16,15 +17,6 @@ _CHICKEN = 'chicken'
 
 class _Topic(Enum):
     GENERAL, FOOD, HYGIENE, SERVICE = range(4)
-
-
-class _Rating(Enum):
-    VERY_BAD = -3
-    BAD = -2
-    SOMEWHAT_BAD = -1
-    SOMEWHAT_GOOD = 1
-    GOOD = 2
-    VERY_GOOD = 3
 
 
 def _token_for(nlp: Language, word: str) -> Token:
@@ -42,7 +34,7 @@ def test_can_match_exact_lexicon_entry(nlp_en: Language):
 
 
 def test_can_read_lexicon_csv(nlp_en: Language, en_restauranteering_csv_path: str):
-    lexicon = analysis.Lexicon(_Topic, _Rating)
+    lexicon = analysis.Lexicon(_Topic, Rating)
     lexicon.read_from_csv(en_restauranteering_csv_path)
     assert len(lexicon.entries) >= 1
 
@@ -52,17 +44,17 @@ def test_can_read_lexicon_csv(nlp_en: Language, en_restauranteering_csv_path: st
 
 
 def test_fails_on_adding_lexicon_entry_with_unknown_topic():
-    lexicon = analysis.Lexicon(_Topic, _Rating)
+    lexicon = analysis.Lexicon(_Topic, Rating)
     with pytest.raises(ValueError) as error:
         lexicon._append_lexicon_entry_from_row(['x', 'unknown'])
     assert error.match(r"^name 'unknown' for enum _Topic must be one of: .+$")
 
 
 def test_fails_on_adding_lexicon_entry_with_unknown_rating():
-    lexicon = analysis.Lexicon(_Topic, _Rating)
+    lexicon = analysis.Lexicon(_Topic, Rating)
     with pytest.raises(ValueError) as error:
         lexicon._append_lexicon_entry_from_row(['x', '', 'unknown'])
-    assert error.match(r"^name 'unknown' for enum _Rating must be one of: .+$")
+    assert error.match(r"^name 'unknown' for enum Rating must be one of: .+$")
 
 
 def test_fails_on_duplicate_topic():
@@ -70,7 +62,7 @@ def test_fails_on_duplicate_topic():
         some, SOME = range(2)
 
     with pytest.raises(ValueError) as error:
-        analysis.Lexicon(_BrokenTopic, _Rating)
+        analysis.Lexicon(_BrokenTopic, Rating)
     assert error.match(r"^case insensitive name 'some' for enum _BrokenTopic must be unique$")
 
 

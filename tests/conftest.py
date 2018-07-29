@@ -12,7 +12,7 @@ from pytest import fixture
 
 _PROJECT_FOLDER = os.path.dirname(os.path.dirname(__file__))
 _DATA_FOLDER = os.path.join(_PROJECT_FOLDER, 'data')
-_TEST_DATA_FOLDER = os.path.dirname(__file__)
+_TESTS_FOLDER = os.path.dirname(__file__)
 
 
 def data_path(name: str) -> str:
@@ -23,21 +23,31 @@ def data_path(name: str) -> str:
     return os.path.join(_DATA_FOLDER, name)
 
 
-def test_data_path(name: str) -> str:
+def tests_path(name: str) -> str:
     """
     Folder where test data to read are located.
     """
     assert name is not None
-    return os.path.join(_TEST_DATA_FOLDER, name)
+    return os.path.join(_TESTS_FOLDER, name)
+
+
+def tests_data_path(name: str) -> str:
+    """
+    Folder where test data to read are located.
+    """
+    assert name is not None
+    return os.path.join(_TESTS_FOLDER, 'data', name)
 
 
 @fixture
 def en_restauranteering_csv_path():
     return data_path('en_restauranteering.csv')
 
+
 @fixture
 def restaurant_feedback_txt_path():
-    return test_data_path("restaurant_feedback.txt")
+    return tests_data_path("restaurant_feedback.txt")
+
 
 @fixture
 def nlp_en() -> spacy.language.Language:
