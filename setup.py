@@ -11,12 +11,10 @@
 import sys
 from setuptools import setup
 
-# Add here console scripts and other entry points in ini-style format
+# Console scripts and other entry points in ini-style format
 entry_points = """
 [console_scripts]
-# script_name = shapiro.module:function
-# For example:
-# fibonacci = shapiro.skeleton:run
+shacount = shapiro.shacount:main
 """
 
 

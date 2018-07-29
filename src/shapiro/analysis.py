@@ -4,7 +4,7 @@ Types and functions for sentiment analysis.
 import csv
 import re
 from enum import Enum
-from typing import Any, Dict, List, Pattern, Union
+from typing import Any, Dict, List, Pattern, Sequence, Tuple, Union
 
 import spacy
 from spacy.language import Language
@@ -14,6 +14,54 @@ from shapiro import tools
 from shapiro.common import Rating
 
 _log = tools.log
+
+
+def most_common_lemmas(
+        nlp: Language, text: Union[str, Sequence[str]],
+        number: int=20, count_stopwords: bool=False, use_pos: bool=False) \
+        -> Sequence[Tuple[int, Tuple[str, str]]]:
+    counter = LemmaCouter(nlp, count_stopwords=count_stopwords, use_pos=use_pos)
+    texts_to_count = [text] if type(text) == str else text
+    for text_to_count in texts_to_count:
+        counter.count(text_to_count)
+    else:
+        result = []
+    result = sorted([
+        (count, lemma, pos)
+        for (lemma, pos), count in counter.lemma_pos_to_count_map.items()
+    ], reverse=True)
+    if number != 0:
+        result = result[:number]
+    return result
+
+
+class LemmaCouter:
+    """
+    Counter for pairs of lemmas and part of speech tags in a text only
+    considering tokens that start with a (Unicode) letter.
+    """
+    def __init__(self, nlp: Language, count_stopwords: bool=False, use_pos: bool=False):
+        assert nlp is not None
+
+        self.lemma_pos_to_count_map = {}
+        self._nlp = nlp
+        self._use_pos = use_pos
+        self._count_stopwords = count_stopwords
+
+    def count(self, text: str):
+        document = self._nlp(text)
+        for sent in document.sents:
+            for token in sent:
+                if self._count_stopwords or not token.is_stop:
+                    lemma = token.lemma_
+                    is_proper_word = (len(lemma) >= 1) and lemma[0].isalpha()
+                    if is_proper_word:
+                        pos = token.pos_ if self._use_pos else None
+                        key = (lemma, pos)
+                        if key in self.lemma_pos_to_count_map:
+                            self.lemma_pos_to_count_map[key] += 1
+                        else:
+                            self.lemma_pos_to_count_map[key] = 1
 
 
 class LexiconEntry:

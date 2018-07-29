@@ -69,3 +69,43 @@ def test_fails_on_duplicate_topic():
 def test_can_convert_lexicon_entry_to_repr():
     lexicon_entry = analysis.LexiconEntry('tasty', _Topic.FOOD, analysis.Rating.GOOD)
     assert 'LexiconEntry(tasty, topic=FOOD, rating=GOOD)' == repr(lexicon_entry)
+
+
+def test_can_count_lemmas_with_pos(nlp_en):
+    counter = analysis.LemmaCouter(nlp_en, use_pos=True)
+    counter.count('hello! hello 1! hello world!')
+    assert counter.lemma_pos_to_count_map == {
+        ('hello', 'INTJ'): 3,
+        ('world', 'NOUN'): 1
+    }
+
+
+def test_can_count_lemmas_without_pos(nlp_en):
+    counter = analysis.LemmaCouter(nlp_en, use_pos=False)
+    counter.count('hello! hello 1! hello world!')
+    assert counter.lemma_pos_to_count_map == {
+        ('hello', None): 3,
+        ('world', None): 1
+    }
+
+
+def test_can_ignore_stopwords(nlp_en):
+    counter = analysis.LemmaCouter(nlp_en, count_stopwords=False, use_pos=False)
+    counter.count('This is the best soap.')
+    assert counter.lemma_pos_to_count_map == {
+        ('this', None): 1,
+        ('good', None): 1,
+        ('soap', None): 1,
+    }
+
+
+def test_can_count_stopwords(nlp_en):
+    counter = analysis.LemmaCouter(nlp_en, count_stopwords=True, use_pos=False)
+    counter.count('This is the best soap.')
+    assert counter.lemma_pos_to_count_map == {
+        ('this', None): 1,
+        ('be', None): 1,
+        ('the', None): 1,
+        ('good', None): 1,
+        ('soap', None): 1,
+    }
