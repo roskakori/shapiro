@@ -21,7 +21,7 @@ _log = tools.log
 def parsed_args(arguments: Sequence[str]) -> argparse.Namespace:
     if arguments is None:  # pragma: no cover
         arguments = sys.argv[1:]
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__.strip())
     tools.add_language_argument(parser)
     parser.add_argument('--number', '-n', type=int, default=_DEFAULT_NUMBER_OF_LEMMAS_TO_PRINT,
                         help='number of most common lemmas to print, 0=all, default: %(default)s')
