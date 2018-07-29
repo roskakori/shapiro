@@ -1,9 +1,11 @@
+"""
+Show lemmas found in a text file that are not already part of a lexicon.
+"""
 import argparse
 import logging
 import sys
 from typing import List
 
-import click
 import spacy
 from spacy.tokens import Token
 
@@ -16,7 +18,7 @@ _log = tools.log
 
 def _parsed_args(arguments: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Parse lexicon path and text path."
+        description=__doc__.strip()
     )
     parser.add_argument(
         "lexicon_path", metavar="LEXICON", help="existing lexicon file"
