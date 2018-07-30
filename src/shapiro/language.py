@@ -1,9 +1,9 @@
 """
 Language specific settings
 """
-from spacy.token import Token
 from shapiro.common import Rating, ranged_rating
 from shapiro.tools import signum
+from spacy.tokens import Token
 
 
 class LanguageSentiment:
