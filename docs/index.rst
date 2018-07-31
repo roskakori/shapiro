@@ -1,8 +1,11 @@
 =======
-shapiro
+Shapiro
 =======
 
-This is the documentation of **shapiro**.
+*"Show me how you feel!"*
+
+This is the documentation of **shapiro**, a command line tool and Python
+package for lexicon based sentiment analysis.
 
 
 Contents
@@ -11,6 +14,8 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   Tutorial <tutorial>
+   User Guide <usage>
    Developer Guide <development>
 
    License <license>
