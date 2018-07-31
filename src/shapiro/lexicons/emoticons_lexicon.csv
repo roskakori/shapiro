@@ -12,7 +12,7 @@
 😎,smiling face with sunglasses,good
 😍,smiling face with heart-eyes,very good
 😘,face blowing a kiss,very good
-🥰,⊛ smiling face with 3 hearts,very good
+🥰,smiling face with 3 hearts,very good
 😗,kissing face,good
 😙,kissing face with smiling eyes,good
 😚,kissing face with closed eyes,good
@@ -20,8 +20,6 @@
 🙂,slightly smiling face,somewhat good
 🤗,hugging face,very good
 🤩,star-struck,very good
-,,
-,,
 🤔,thinking face,somewhat bad
 🤨,face with raised eyebrow,bad
 😐,neutral face,somewhat bad
@@ -65,22 +63,18 @@
 😬,grimacing face,bad
 😰,anxious face with sweat,bad
 😱,face screaming with fear,very bad
-🥵,⊛ hot face,bad
-🥶,⊛cold face,bad
+🥵,hot face,bad
+🥶,cold face,bad
 😳,flushed face,somewhat bad
 🤪,zany face,somewhat bad
 😵,dizzy face,bad
 😡,pouting face,very bad
 😠,angry face ,very bad
 🤬,face with symbols on mouth,very bad
-,,
-,,
 🤢,nauseated face,very bad
 🤮,face vomiting,very bad
 😈,smiling face with horns,very bad
 👿,angry face with horns,very bad
-,,
-,,
 💩,pile of poo,very bad
 😺,grinning cat face,good
 😸,grinning cat face with smiling eyes,good
@@ -91,8 +85,6 @@
 🙀,weary cat face,very bad
 😿,crying cat face ,bad
 😾,pouting cat face ,bad
-,,
-,,
 🖕,middle finger,very bad
 👏,clapping hands,good
 👀,eyes,somewhat bad
