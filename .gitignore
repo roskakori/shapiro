@@ -33,6 +33,9 @@ htmlcov/*
 junit.xml
 coverage.xml
 
+# Jenkins build related
+cloc.xml
+
 # Build and docs folder/files
 build/*
 dist/*
