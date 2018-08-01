@@ -4,8 +4,10 @@ Language specific settings
 from typing import Dict, Set
 
 from shapiro.common import Rating, ranged_rating
-from shapiro.tools import signum
+from shapiro.tools import log, signum
 from spacy.tokens import Token
+
+_log = log
 
 
 class LanguageSentiment:
@@ -285,3 +287,19 @@ class GermanSentiment(LanguageSentiment):
             'keines',
             'nicht',
         }
+
+
+def language_sentiment_for(language_code: str) -> LanguageSentiment:
+    base_code = language_code.split('_')[0]
+    if len(base_code) != 2:
+        raise ValueError(
+            'language base code must be exactly 2 letters but is: %r (derived from %r)'
+            % (base_code, language_code))
+    if base_code == 'en':
+        result = EnglishSentiment()
+    elif base_code == 'de':
+        result = GermanSentiment()
+    else:
+        _log.warning('cannot find language sentiment for %r, using empty default sentiment')
+        result = LanguageSentiment(base_code)
+    return result

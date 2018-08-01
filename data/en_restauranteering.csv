@@ -1,12 +1,18 @@
 # Lemma,Topic,Rating
 chef,service,
 clean,hygiene,good
+decor,ambiance,
 dirty,hygiene,bad
-friendly,,good
-haggis,food,
+friendly,service,good
 guest,service,
+haggis,food,
+location,ambiance,
+loud,ambiance,bad
+lovely,,very_good
+music,ambiance,
+polite,service,good
 stench,,bad
-tasty,,good
+tasty,food,good
 waiter,service,
 wine,food,
 whine,,bad

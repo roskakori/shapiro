@@ -1,20 +1,16 @@
 """
 Tests for tools module.
 """
-from enum import Enum
-
+import spacy
 from shapiro import shalex
 from shapiro.analysis import Lexicon
-import spacy
+from shapiro.common import RestaurantTopic
+from spacy.language import Language
 
 
-class _Topic(Enum):
-    GENERAL, FOOD, HYGIENE, SERVICE, VALUE = range(5)
-
-
-def test_lexicon_and_feedback_file(en_restauranteering_csv_path: str, restaurant_feedback_txt_path: str):
-    # shalex.process([en_restauranteering_csv_path, restaurant_feedback_txt_path])
-    lexicon = Lexicon(_Topic)
+def test_lexicon_and_feedback_file(
+        nlp_en: Language, en_restauranteering_csv_path: str, restaurant_feedback_txt_path: str):
+    lexicon = Lexicon(RestaurantTopic)
     lexicon.read_from_csv(en_restauranteering_csv_path)
 
     with open(restaurant_feedback_txt_path, "r", encoding="utf-8") as restaurant_feedback_txt_file:

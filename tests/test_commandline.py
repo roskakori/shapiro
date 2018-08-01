@@ -33,3 +33,9 @@ def test_can_count_restaurant_feedback(restaurant_feedback_txt_path: str):
     assert 0 == process(['count', restaurant_feedback_txt_path])
     assert 0 == process(['count', '--pos', restaurant_feedback_txt_path])
     assert 0 == process(['count', '--stopwords', restaurant_feedback_txt_path])
+
+
+def test_can_analyze_restaurant_feedback(
+        en_restauranteering_csv_path: str, en_restaurant_single_feedback_txt_path: str):
+    assert 0 == process([
+        'analyze', '--language=en', en_restauranteering_csv_path, en_restaurant_single_feedback_txt_path])

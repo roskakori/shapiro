@@ -4,14 +4,14 @@ Types and functions for sentiment analysis.
 import csv
 import re
 from enum import Enum
-from typing import Any, Dict, List, Pattern, Sequence, Tuple, Union
+from typing import Any, Dict, Generator, List, Pattern, Sequence, Tuple, Union
 
 import spacy
+from shapiro import tools
+from shapiro.common import Rating, negated_rating
+from shapiro.language import LanguageSentiment
 from spacy.language import Language
 from spacy.tokens import Token
-
-from shapiro import tools
-from shapiro.common import Rating
 
 _log = tools.log
 
@@ -20,7 +20,7 @@ def most_common_lemmas(
         nlp: Language, text: Union[str, Sequence[str]],
         number: int=20, count_stopwords: bool=False, use_pos: bool=False) \
         -> Sequence[Tuple[int, Tuple[str, str]]]:
-    counter = LemmaCouter(nlp, count_stopwords=count_stopwords, use_pos=use_pos)
+    counter = LemmaCounter(nlp, count_stopwords=count_stopwords, use_pos=use_pos)
     texts_to_count = [text] if type(text) == str else text
     for text_to_count in texts_to_count:
         counter.count(text_to_count)
@@ -35,7 +35,7 @@ def most_common_lemmas(
     return result
 
 
-class LemmaCouter:
+class LemmaCounter:
     """
     Counter for pairs of lemmas and part of speech tags in a text only
     considering tokens that start with a (Unicode) letter.
@@ -65,6 +65,9 @@ class LemmaCouter:
 
 
 class LexiconEntry:
+    """
+    Entry in a lexicon that can be compared with a token.
+    """
     _IS_REGEX_REGEX = re.compile(r'.*[.+*\[$^\\]')
 
     def __init__(self, lemma: str, topic: Enum, rating: Rating):
@@ -114,6 +117,9 @@ class LexiconEntry:
 
 
 class Lexicon:
+    """
+    Collection of :py:class:`LexiconEntry` that can be searched for a best match.
+    """
     def __init__(self, topics: Enum, ratings: Enum=Rating):
         assert topics is not None
         assert ratings is not None
@@ -239,3 +245,146 @@ class SentimentContext:
     @property
     def synonyms(self) -> Dict[Pattern, str]:
         return self._synonyms
+
+
+def add_token_extension(force=False):
+    """
+    Extend spaCy's :py:class:`spacy.tokens.Token` with attributes for
+    sentiment specific data.
+
+    This should be called only once during the runtime of the application.
+    If multiple calls cannot be avoided, use ``force=True`` to prevent spaCy
+    from rejecting to redundant setting.
+    """
+    Token.set_extension('topic', default=None, force=force)
+    Token.set_extension('rating', default=None, force=force)
+    Token.set_extension('is_negation', default=False, force=force)
+    Token.set_extension('is_intensifier', default=False, force=force)
+    Token.set_extension('is_diminisher', default=False, force=force)
+
+
+class OpinionMiner:
+    """
+    Miner for opinions written in a specific language based on a lexicon.
+
+    Opinions are matched to a topic and :py:class:`Rating`.
+    """
+    def __init__(self, nlp: Language, lexicon: Lexicon, language_sentiment: LanguageSentiment, topic_type: Enum=None):
+        assert nlp is not None
+        assert lexicon is not None
+        assert language_sentiment is not None
+        self.nlp = nlp
+        self.language_sentiment = language_sentiment
+        self._topic_type = topic_type
+
+        def opinion_matcher(doc):
+            """
+            SpaCy pipeline pipe that sets opinion related attributes for each
+            token.
+            """
+            for sentence in doc.sents:
+                for token in sentence:
+                    if self.language_sentiment.is_intensifier(token):
+                        token._.is_intensifier = True
+                    elif self.language_sentiment.is_diminisher(token):
+                        token._.is_diminisher = True
+                    elif self.language_sentiment.is_negation(token):
+                        token._.is_negation = True
+                    else:
+                        lexicon_entry = lexicon.lexicon_entry_for(token)
+                        if lexicon_entry is not None:
+                            token._.rating = lexicon_entry.rating
+                            token._.topic = lexicon_entry.topic
+                        else:
+                            # Check for lexicon independent negatives and positives.
+                            lower_lemma = token.lemma_.lower()
+                            rating = self.language_sentiment.negatives.get(lower_lemma)
+                            if rating is None:
+                                rating = self.language_sentiment.positives.get(lower_lemma)
+                            if rating is not None:
+                                token._.rating = rating
+            return doc
+
+        if self.nlp.has_pipe('opinion_matcher'):
+            self.nlp.remove_pipe('opinion_matcher')
+        self.nlp.add_pipe(opinion_matcher)
+
+    def opinions(self, text: str) -> Generator[Tuple[Enum, Rating, List[Token]], None, None]:
+        """
+        Opinions found in ``text``. This yields an opinion for each sent in text.
+        """
+        assert text is not None
+
+        document = self.nlp(text)
+        for sent in document.sents:
+            _log.info('analyzing: %s', str(sent).strip())
+            topic, rating = self._topic_and_rating_of(sent)
+            yield topic, rating, sent
+
+    def _topic_and_rating_of(self, tokens: List[Token]) -> Tuple[Enum, Rating]:
+        assert tokens is not None
+
+        result_topic = None
+        result_rating = None
+        opinion_essence = OpinionMiner._essential_tokens(tokens)
+        # print('  1: ', opinion_essence)
+        self._combine_ratings(opinion_essence)
+        # print('  2: ', opinion_essence)
+        for token in opinion_essence:
+            _log.debug('  using token for opinion: %s')
+            # print(debugged_token(token))
+            if (token._.topic is not None) and (result_topic is None):
+                result_topic = token._.topic
+            if (token._.rating is not None) and (result_rating is None):
+                result_rating = token._.rating
+            if (result_topic is not None) and (result_rating is not None):
+                break
+        return result_topic, result_rating
+
+    @staticmethod
+    def _essential_tokens(tokens):
+        return [token for token in tokens if OpinionMiner._is_essential(token)]
+
+    @staticmethod
+    def _is_essential(token: Token) -> bool:
+        return token._.topic is not None \
+               or token._.rating is not None \
+               or token._.is_diminisher \
+               or token._.is_intensifier \
+               or token._.is_negation
+
+    def _combine_ratings(self, tokens):
+        # Find the first rating (if any).
+        rating_token_index = next(
+            (
+                token_index for token_index in range(len(tokens))
+                if tokens[token_index]._.rating is not None
+            ),
+            None  # Default if no rating token can be found
+
+        )
+
+        if rating_token_index is not None:
+            # Apply modifiers to the left on the rating.
+            original_rating_token = tokens[rating_token_index]
+            combined_rating = original_rating_token._.rating
+            modifier_token_index = rating_token_index - 1
+            modified = True  # Did the last iteration modify anything?
+            while modified and modifier_token_index >= 0:
+                modifier_token = tokens[modifier_token_index]
+                if self.language_sentiment.is_intensifier(modifier_token):
+                    combined_rating = self.language_sentiment.intensified(combined_rating)
+                elif self.language_sentiment.is_diminisher(modifier_token):
+                    combined_rating = self.language_sentiment.diminished(combined_rating)
+                elif self.language_sentiment.is_negation(modifier_token):
+                    combined_rating = negated_rating(combined_rating)
+                else:
+                    # We are done, no more modifiers
+                    # to the left of this rating.
+                    modified = False
+                if modified:
+                    # Discord the current modifier
+                    # and move on to the token on the left.
+                    del tokens[modifier_token_index]
+                    modifier_token_index -= 1
+            original_rating_token._.rating = combined_rating

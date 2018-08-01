@@ -8,6 +8,8 @@ from typing import Sequence
 
 import spacy
 from shapiro import __version__, analysis, tools
+from shapiro.common import Rating, RestaurantTopic
+from shapiro.language import language_sentiment_for
 from spacy.language import Language
 
 _DEFAULT_ENCODING = 'utf-8'
@@ -24,9 +26,21 @@ def parsed_args(arguments: Sequence[str]):
     parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
     subparsers = parser.add_subparsers(title='available commands')
 
+    parser_analyze = subparsers.add_parser(
+        'analyze', help='extract opinions from a text')
+    _add_language_argument(parser_analyze)
+    parser_analyze.add_argument(
+        '--encoding', '-e', default=_DEFAULT_ENCODING,
+        help='encoding of TEXT-FILE, default: %(default)s')
+    parser_analyze.add_argument(
+        'lexicon_csv_path', metavar='LEXICON-FILE')
+    parser_analyze.add_argument(
+        'text_to_analyze_path', metavar='TEXT-FILE')
+    parser_analyze.set_defaults(func=command_analyze)
+
     parser_count = subparsers.add_parser(
         'count', help='print most common lemmas and their count in a text file')
-    tools.add_language_argument(parser_count)
+    _add_language_argument(parser_count)
     parser_count.add_argument(
         '--encoding', '-e', default=_DEFAULT_ENCODING,
         help='encoding of TEXT-FILE, default: %(default)s')
@@ -52,6 +66,39 @@ def parsed_args(arguments: Sequence[str]):
     return result
 
 
+def _add_language_argument(parser: argparse.ArgumentParser):
+    """
+    Add ``--language`` to an :class:`argparse.ArgumentParser` that refers to a
+    2 letter `ISO-639-1 language code <https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>`_
+    for witch spacy must provide a matching :class:`spacy.language.Language`.
+    """
+    parser.add_argument('--language', '-l', default='en',
+                        help='two letter ISO-639-1 language code for spaCy; default: %(default)s')
+
+
+def command_analyze(args: argparse.Namespace):
+    nlp = _nlp(args)
+    # FIXME: Use generic topics instead of hard coded RestaurantTopic.
+    lexicon = analysis.Lexicon(RestaurantTopic, Rating)
+    lexicon.read_from_csv(args.lexicon_csv_path, encoding=args.encoding)
+    text_to_analyze_path = args.text_to_analyze_path
+    with open(text_to_analyze_path, 'r', encoding=args.encoding) as text_to_analyze_file:
+        # NOTE: Memory wise it would generally be nicer to read the text line by line.
+        # However we cannot ensure that the end of a line also constitutes the end of
+        # a sentence, so we need to read the whole text and pass it to spaCy to split
+        # into sentences.
+        text = text_to_analyze_file.read()
+    language_sentiment = language_sentiment_for(args.language)
+    opinion_miner = analysis.OpinionMiner(nlp, lexicon, language_sentiment)
+    for topic, rating, sent in opinion_miner.opinions(text):
+        topic_text = topic.name.lower() if topic is not None else ''
+        rating_text = rating.name.lower() if rating is not None else ''
+        sent_text = str(sent).strip()
+        # TODO: Use proper csv.writer() instead of hacked together escaping.
+        csv_escaped_sent_text = '"' + sent_text.replace('"', '""') + '"'
+        print(f'{topic_text},{rating_text},{csv_escaped_sent_text}')
+
+
 def command_count(args: argparse.Namespace):
     nlp = _nlp(args)
     number = args.number
@@ -66,6 +113,10 @@ def command_count(args: argparse.Namespace):
             if use_pos:
                 row_to_write.append(str(pos))
             print('\t'.join(row_to_write))
+
+
+def command_lexicon(args: argparse.Namespace):
+    raise NotImplementedError('lexicon')
 
 
 def _nlp(args: argparse.Namespace) -> Language:
@@ -91,6 +142,7 @@ def process(arguments: Sequence[str]=None):
 
 def main():  # pragma: no cover
     logging.basicConfig(level=logging.INFO)
+    analysis.add_token_extension()
     sys.exit(process())
 
 

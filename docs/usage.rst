@@ -6,10 +6,12 @@ User guide
 About sentiment analysis
 ========================
 
+
 Definition
 ----------
 
 TODO
+
 
 Process
 -------
@@ -21,16 +23,21 @@ Process
 
 TODO: elaborate
 
+
 Challenges
 ----------
 
 TODO
+
 
 .. index::
     single: lexicon
 
 The lexicon
 ===========
+
+TODO
+
 
 .. index::
     single: rating
@@ -39,6 +46,8 @@ Ratings
 -------
 
 TODO
+
+
 .. index::
     single: topic
 
@@ -46,6 +55,7 @@ Topics
 ------
 
 TODO
+
 
 .. index::
     single: POS; part-of-speech; tagging
@@ -81,7 +91,7 @@ The CSV format
 
 Shapiro's command line tools use CSV files to exchange and store lexicons.
 CSV stands for "comma separated values" where text files can be used to store
-tabular data separated by comma (","). There are also escape mechanisms to
+tabular data separated by comma (,). There are also escape mechanisms to
 store commas, line breaks and quotes. Refer to
 `RFC-4180 <https://tools.ietf.org/html/rfc4180>`_ for more details.
 
@@ -104,8 +114,10 @@ and thus might be unable to easily produce CSV files that shapiro can process.
 Building the lexicon
 ====================
 
+
 Collect the initial data
 ------------------------
+
 
 Domain specific documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,6 +126,7 @@ Your first source for lemmas to add to the lexicon might be obvious words you
 can collect from existing documents from your domain. For example
 restauranteering uses many words around food and beverages that can be
 collected from the restaurant's menu or from lists of ingredients.
+
 
 .. index::
     pair: shapiro; count
@@ -161,10 +174,46 @@ TODO: Use ``shapiro lexicon --create / --append`` to add terms from existing fee
 .. index::
     pair: shapiro; analyze
 
-Analyze data
-------------
+Analyze data with ``shapiro analyze``
+=====================================
 
-TODO: Use ``shapiro analyze`` to analyze specific feedback
+Once you have a lexicon you can analyze data in a text file using
+``shapiro analyze``. For example:
+
+.. code-block:: sh
+
+    shapiro analyze --language en data/en_restauranteering.csv data/en_restaurant_single_feedback.txt
+
+In this example, the lexicon is stored in :file:`data/en_restauranteering.csv`
+and a text file with a single restaurant feedback consisting of multiple
+sentences is located at :file:`data/en_restaurant_single_feedback.txt`.
+
+You can find these files in the :file:`data` folder.
+
+The output should look like this:
+
+.. code-block:: console
+
+    INFO:shapiro:loading language "en"
+    INFO:shapiro:analyzing: Great tasty food, good presentation.
+    food,very_good,"Great tasty food, good presentation."
+    INFO:shapiro:analyzing: Sadly the waiter was very slow but still polite.
+    service,very_good,"Sadly the waiter was very slow but still polite."
+    INFO:shapiro:analyzing: Good location walking distance to tube station.
+    ambiance,good,"Good location walking distance to tube station."
+    INFO:shapiro:analyzing: The decor of the restaurant is really lovely.
+    ambiance,very_good,"The decor of the restaurant is really lovely."
+
+To redirect the output (but not the ``INFO`` messages) to a CSV file use the
+shell's builtin output redirection with ``>``:
+
+.. code-block:: sh
+
+    shapiro >restaurant_opinions.csv analyze --language en data/en_restauranteering.csv data/en_restaurant_single_feedback.txt
+
+The resulting file :file:`restaurant_opinions.csv` can then be used for
+further processing, for example in a `Jupyter notebook <http://jupyter.org/>`_
+and then read using :py:func:`pandas.read_csv`.
 
 
 The Language

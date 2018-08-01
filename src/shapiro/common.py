@@ -3,6 +3,8 @@ Common structures and function used by multiple modules.
 """
 from enum import Enum
 
+from spacy.tokens import Token
+
 
 class Rating(Enum):
     VERY_BAD = -3
@@ -15,7 +17,7 @@ class Rating(Enum):
 
 # FIXME: Remove this and make all functions using it able to work with a dynamic topic system.
 class RestaurantTopic(Enum):
-    GENERAL, FOOD, HYGIENE, SERVICE, VALUE = range(5)
+    AMBIANCE, FOOD, GENERAL, HYGIENE, SERVICE, VALUE = range(6)
 
 
 _MIN_RATING_VALUE = Rating.VERY_BAD.value
@@ -47,3 +49,23 @@ def ranged_rating(rating_value: int) -> Rating:
     """
     assert rating_value, 'rating_value=%r' % rating_value
     return Rating(min(_MAX_RATING_VALUE, max(_MIN_RATING_VALUE, rating_value)))
+
+
+def debugged_token(token: Token) -> str:
+    """
+    Human readable string representation of ``token`` including shapiro
+    specific extension attributes.
+    """
+    result = 'Token(%s, lemma=%s, pos=%s' % (token.text, token.lemma_, token.pos_)
+    if token._.topic is not None:
+        result += ', topic=' + token._.topic.name
+    if token._.rating is not None:
+        result += ', rating=' + token._.rating.name
+    if token._.is_diminisher:
+        result += ', diminisher'
+    if token._.is_intensifier:
+        result += ', intensifier'
+    if token._.is_negation:
+        result += ', negation'
+    result += ')'
+    return result

@@ -1,7 +1,8 @@
 """
 Tests for :py:mod:`shapiro.language`.
 """
-from shapiro.language import EnglishSentiment, GermanSentiment
+from shapiro.language import (EnglishSentiment, GermanSentiment,
+                              LanguageSentiment, language_sentiment_for)
 from spacy.language import Language
 from spacy.tokens import Token
 
@@ -22,3 +23,10 @@ def test_can_find_german_sentiments(nlp_de: Language):
     assert de.is_diminisher(_token_for(nlp_de, 'eher'))
     assert de.is_intensifier(_token_for(nlp_de, 'sehr'))
     assert de.is_negation(_token_for(nlp_de, 'nicht'))
+
+
+def test_can_find_language_sentiment_for_code():
+    assert type(language_sentiment_for('en')) == EnglishSentiment
+    assert type(language_sentiment_for('en_US')) == EnglishSentiment
+    assert type(language_sentiment_for('de')) == GermanSentiment
+    assert type(language_sentiment_for('xx')) == LanguageSentiment
