@@ -4,9 +4,7 @@ Various tools to make life easier.
 import argparse
 import logging
 
-from spacy.language import Language
-
-
+#: The general logger used by all modules.
 log = logging.getLogger('shapiro')
 
 
@@ -34,11 +32,3 @@ def add_language_argument(parser: argparse.ArgumentParser):
     """
     parser.add_argument('--language', '-l', default='en',
                         help='two letter ISO-639-1 language code for spaCy; default: %(default)s')
-
-
-def add_version_argument(parser: argparse.ArgumentParser):
-    """
-    Add ``--version`` to an :class:`argparse.ArgumentParser` that shows the
-    current version of shapiro.
-    """
-    parser.add_argument('--version', action='version', version='%(prog)s TODO')
