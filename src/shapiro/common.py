@@ -22,19 +22,28 @@ _MIN_RATING_VALUE = Rating.VERY_BAD.value
 _MAX_RATING_VALUE = Rating.VERY_GOOD.value
 
 RATING_TO_NEGATED_RATING_MAP = {
-    Rating.VERY_BAD     : Rating.SOMEWHAT_GOOD,
-    Rating.BAD          : Rating.GOOD,
-    Rating.SOMEWHAT_BAD : Rating.GOOD,  # hypothetical?
+    Rating.VERY_BAD: Rating.SOMEWHAT_GOOD,
+    Rating.BAD: Rating.GOOD,
+    Rating.SOMEWHAT_BAD: Rating.GOOD,  # hypothetical?
     Rating.SOMEWHAT_GOOD: Rating.BAD,  # hypothetical?
-    Rating.GOOD         : Rating.BAD,
-    Rating.VERY_GOOD    : Rating.SOMEWHAT_BAD,
+    Rating.GOOD: Rating.BAD,
+    Rating.VERY_GOOD: Rating.SOMEWHAT_BAD,
 }
 
 
 def negated_rating(rating: Rating) -> Rating:
+    """
+    Derived :py:class:`Rating` after a negation is applied.
+    """
     assert rating is not None
     return RATING_TO_NEGATED_RATING_MAP[rating]
 
 
 def ranged_rating(rating_value: int) -> Rating:
+    """
+    A :py:class:`Rating` based on matching ``int`` enum code of
+    ``rating_value``. If ``rating_value`` is outside of the valid enum range
+    it is automatically changed to an appropriate ``VERY_xxx``.
+    """
+    assert rating_value, 'rating_value=%r' % rating_value
     return Rating(min(_MAX_RATING_VALUE, max(_MIN_RATING_VALUE, rating_value)))

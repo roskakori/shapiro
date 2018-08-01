@@ -9,7 +9,6 @@ import spacy
 import spacy.language
 from pytest import fixture
 
-
 _PROJECT_FOLDER = os.path.dirname(os.path.dirname(__file__))
 _DATA_FOLDER = os.path.join(_PROJECT_FOLDER, 'data')
 _TESTS_FOLDER = os.path.dirname(__file__)
@@ -47,6 +46,11 @@ def en_restauranteering_csv_path():
 @fixture
 def restaurant_feedback_txt_path():
     return tests_data_path("restaurant_feedback.txt")
+
+
+@fixture
+def nlp_de() -> spacy.language.Language:
+    return spacy.load('de')
 
 
 @fixture
