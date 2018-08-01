@@ -9,12 +9,13 @@
 """
 
 import sys
+
 from setuptools import setup
 
 # Console scripts and other entry points in ini-style format
 entry_points = """
 [console_scripts]
-shacount = shapiro.shacount:main
+shapiro = shapiro.commandline:main
 """
 
 
@@ -22,6 +23,7 @@ def setup_package():
     needs_sphinx = {'build_sphinx', 'upload_docs'}.intersection(sys.argv)
     sphinx = ['sphinx'] if needs_sphinx else []
     setup(setup_requires=['pyscaffold>=3.0a0,<3.1a0'] + sphinx,
+          python_requires='>=3.6.0',
           entry_points=entry_points,
           use_pyscaffold=True)
 
