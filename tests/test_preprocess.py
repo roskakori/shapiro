@@ -1,7 +1,6 @@
 """
-Tests for preprocess module.
+Tests for :py:mod:`shapiro.preprocess`.
 """
-
 from shapiro import preprocess
 
 

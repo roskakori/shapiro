@@ -1,5 +1,5 @@
 """
-Tests for tools module.
+Tests for :py:mod:`shapiro.tools`.
 """
 from shapiro import tools
 

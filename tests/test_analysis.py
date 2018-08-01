@@ -1,16 +1,13 @@
 """
-Tests for analysis module.
+Tests for :py:mod:`shapiro.analysis`.
 """
 from enum import Enum
 
 import pytest
+from shapiro import analysis, tools
+from shapiro.common import Rating
 from spacy.language import Language
 from spacy.tokens import Token
-
-from shapiro import analysis
-from shapiro import tools
-from shapiro.common import Rating
-
 
 _CHICKEN = 'chicken'
 
