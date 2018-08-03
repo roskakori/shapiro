@@ -164,7 +164,6 @@ class Lexicon:
             lexicon_reader = csv.reader(csv_file, **csv_reader_keyword_arguments)
             for row in lexicon_reader:
                 row = [item.strip() for item in row]
-                row += 3 * ['']  # Ensure we have at least 4 strings
                 try:
                     self._append_lexicon_entry_from_row(row)
                 except ValueError as error:
@@ -198,8 +197,8 @@ class Lexicon:
             return result
 
         row = [item.strip() for item in original_row]
-        row += 3 * ['']  # Ensure we have at least 3 strings
-        lemma, topic_name, rating_name = row[:3]
+        row += 4 * ['']  # Ensure we have at least 4 strings
+        lemma, _, topic_name, rating_name = row[:4]
         if lemma != '' and not lemma.startswith('#'):
             topic = enum_value_for(self._topic_name_to_topic_map, topic_name)
             rating = enum_value_for(self._rating_name_to_rating_map, rating_name)

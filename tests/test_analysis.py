@@ -41,14 +41,14 @@ def test_can_read_lexicon_csv(nlp_en: Language, en_restauranteering_csv_path: st
 def test_fails_on_adding_lexicon_entry_with_unknown_topic():
     lexicon = analysis.Lexicon(RestaurantTopic, Rating)
     with pytest.raises(ValueError) as error:
-        lexicon._append_lexicon_entry_from_row(['x', 'unknown'])
+        lexicon._append_lexicon_entry_from_row(['x', '', 'unknown'])
     assert error.match(r"^name 'unknown' for enum RestaurantTopic must be one of: .+$")
 
 
 def test_fails_on_adding_lexicon_entry_with_unknown_rating():
     lexicon = analysis.Lexicon(RestaurantTopic, Rating)
     with pytest.raises(ValueError) as error:
-        lexicon._append_lexicon_entry_from_row(['x', '', 'unknown'])
+        lexicon._append_lexicon_entry_from_row(['x', '', '', 'unknown'])
     assert error.match(r"^name 'unknown' for enum Rating must be one of: .+$")
 
 
