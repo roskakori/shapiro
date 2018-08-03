@@ -17,7 +17,7 @@ class Rating(Enum):
 
 # FIXME: Remove this and make all functions using it able to work with a dynamic topic system.
 class RestaurantTopic(Enum):
-    AMBIANCE, FOOD, GENERAL, HYGIENE, SERVICE, VALUE = range(6)
+    AMBIENCE, FOOD, GENERAL, HYGIENE, SERVICE, VALUE = range(1, 7)
 
 
 _MIN_RATING_VALUE = Rating.VERY_BAD.value

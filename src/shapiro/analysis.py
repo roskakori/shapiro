@@ -122,26 +122,27 @@ class Lexicon:
     """
     Collection of :py:class:`LexiconEntry` that can be searched for a best match.
     """
-    def __init__(self, topics: Enum, ratings: Enum=Rating):
-        assert topics is not None
-        assert ratings is not None
+    def __init__(self, topic_enum: Enum, rating_enum: Enum=Rating):
+        assert topic_enum is not None
+        assert rating_enum is not None
 
-        def name_to_enum_map(enum_type: Enum) -> Dict[str, Any]:
-            result = {}
+        def check_enum_names_are_case_insensitely_unique(enum_type: Enum):
+            lower_name_to_name_map = {}
             for enum_entry in enum_type:
-                enum_name = enum_entry.name.lower()
-                if enum_name in result:
-                    raise ValueError('case insensitive name %r for enum %s must be unique'
-                                     % (enum_name, enum_type.__name__))
-                result[enum_name] = enum_entry
-            return result
+                lower_enum_entry_name = enum_entry.name.lower()
+                clashing_name = lower_name_to_name_map.get(lower_enum_entry_name)
+                if clashing_name is not None:
+                    raise ValueError(
+                        'case insensitive name %r for enum %s must be unique but clashes with %r'
+                        % (enum_entry.name, enum_type.__name__, clashing_name)
+                    )
+                lower_name_to_name_map[lower_enum_entry_name] = enum_entry.name
 
-        # Build maps to map texts from CSV to topic and rating.
+        check_enum_names_are_case_insensitely_unique(topic_enum)
+        check_enum_names_are_case_insensitely_unique(rating_enum)
         self.entries: List[LexiconEntry] = []
-        self._topics = topics
-        self._ratings = ratings
-        self._topic_name_to_topic_map = name_to_enum_map(topics)
-        self._rating_name_to_rating_map = name_to_enum_map(ratings)
+        self._topic_enum = topic_enum
+        self._rating_enum = rating_enum
 
     def read_from_csv(self, lexicon_csv_path: str, encoding: str='utf-8', **csv_reader_keyword_arguments):
         """
@@ -174,24 +175,23 @@ class Lexicon:
     def _append_lexicon_entry_from_row(self, original_row: List[str]):
         assert original_row is not None
 
-        def enum_value_for(name_to_enum_entry_map: Dict[str, Any], name: str):
+        def enum_value_for(enum_type: Enum, name: str):
             """
             Enum entry matching lower case ``name`` in
-            ``name_to_enum_entry_map`` or ``None`` if ``name`` is empty.
+            ``enum_type`` or ``None`` if ``name`` is empty.
             """
-            assert name_to_enum_entry_map is not None
-            assert len(name_to_enum_entry_map) >= 1
+            assert enum_type is not None
             assert name is not None
             assert name.strip() == name
 
             if name == '':
                 result = None
             else:
+                enum_value_name = name.replace(' ', '_').upper()
                 try:
-                    result = name_to_enum_entry_map[name.lower()]
+                    result = enum_type[enum_value_name]
                 except KeyError:
-                    enum_type = type(next(iter(name_to_enum_entry_map.values())))
-                    valid_names = sorted(name_to_enum_entry_map.keys())
+                    valid_names = sorted([enum_entry.name.lower() for enum_entry in enum_type])
                     raise ValueError('name %r for enum %s must be one of: %s'
                                      % (name, enum_type.__name__, valid_names))
             return result
@@ -200,8 +200,8 @@ class Lexicon:
         row += 4 * ['']  # Ensure we have at least 4 strings
         lemma, _, topic_name, rating_name = row[:4]
         if lemma != '' and not lemma.startswith('#'):
-            topic = enum_value_for(self._topic_name_to_topic_map, topic_name)
-            rating = enum_value_for(self._rating_name_to_rating_map, rating_name)
+            topic = enum_value_for(self._topic_enum, topic_name)
+            rating = enum_value_for(self._rating_enum, rating_name)
             lexicon_entry = LexiconEntry(lemma, topic, rating)
             self.entries.append(lexicon_entry)
 

@@ -1,15 +1,15 @@
 # Lemma,POS,Topic,Rating
 chef,,service,
 clean,,hygiene,good
-decor,,ambiance,
+decor,,ambience,
 dirty,,hygiene,bad
 friendly,,service,good
 guest,,service,
 haggis,,food,
-location,,ambiance,
-loud,,ambiance,bad
+location,,ambience,
+loud,,ambience,bad
 lovely,,,very_good
-music,,ambiance,
+music,,ambience,
 polite,,service,good
 stench,,,bad
 tasty,,food,good

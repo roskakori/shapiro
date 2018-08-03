@@ -58,7 +58,7 @@ def test_fails_on_duplicate_topic():
 
     with pytest.raises(ValueError) as error:
         analysis.Lexicon(_BrokenTopic, Rating)
-    assert error.match(r"^case insensitive name 'some' for enum _BrokenTopic must be unique$")
+    assert error.match(r"^case insensitive name 'SOME' for enum _BrokenTopic must be unique but clashes with 'some'$")
 
 
 def test_can_convert_lexicon_entry_to_repr():
