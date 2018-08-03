@@ -266,10 +266,12 @@ class GermanSentiment(LanguageSentiment):
             'extrem',
             'sehr',
             'wirklich',
+            'ziemlich',
             'zu',
         }
         self.negatives = {
             'beschissen': Rating.VERY_BAD,
+            'durchschnittlich': Rating.SOMEWHAT_BAD,
             'furchtbar': Rating.VERY_BAD,
             'ineffizient': Rating.BAD,
             'mühsam': Rating.SOMEWHAT_BAD,
@@ -279,8 +281,10 @@ class GermanSentiment(LanguageSentiment):
             'ungut': Rating.BAD,
             'unschön': Rating.SOMEWHAT_BAD,
             'übel': Rating.BAD,
+            'unterdurchschnittlich': Rating.BAD,
             'verbesserungsfähig': Rating.BAD,
             'verbesserungswürdig': Rating.BAD,
+
             # TODO: Add special logic for modals.
             'könnte': Rating.SOMEWHAT_BAD,
             'könnten': Rating.SOMEWHAT_BAD,
@@ -296,6 +300,7 @@ class GermanSentiment(LanguageSentiment):
         self.positives = {
             'ausgezeichnet': Rating.VERY_GOOD,
             'bestens': Rating.VERY_GOOD,
+            'entzückend': Rating.VERY_GOOD,
             'effektiv': Rating.GOOD,
             'effizient': Rating.GOOD,
             'exzellent': Rating.VERY_GOOD,
@@ -306,14 +311,17 @@ class GermanSentiment(LanguageSentiment):
             'ok': Rating.SOMEWHAT_GOOD,
             'okay': Rating.SOMEWHAT_GOOD,
             'reichhaltig': Rating.GOOD,
+            'reizend': Rating.GOOD,
             'super': Rating.VERY_GOOD,
             'toll': Rating.VERY_GOOD,
             'top': Rating.VERY_GOOD,
+            'überdurchschnittlich': Rating.SOMEWHAT_GOOD,
             'überzeugend': Rating.SOMEWHAT_GOOD,
             'vorzüglich': Rating.VERY_GOOD,
             'wunderbar': Rating.VERY_GOOD,
         }
         self.idioms = {
+            'wenig berauschend': Rating.SOMEWHAT_BAD,
             'luft nach oben': Rating.SOMEWHAT_GOOD,
         }
         self.negations = {
