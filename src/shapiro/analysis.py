@@ -47,12 +47,14 @@ class LemmaCounter:
         self._nlp = nlp
         self._use_pos = use_pos
         self._count_stopwords = count_stopwords
+        self._stopwords = nlp.Defaults.stop_words
 
     def count(self, text: str):
         document = self._nlp(text)
         for sent in document.sents:
             for token in sent:
-                if self._count_stopwords or not token.is_stop:
+                is_stop = token.is_stop or token.lemma_.lower() in self._nlp.Defaults.stop_words
+                if self._count_stopwords or not is_stop:
                     lemma = token.lemma_
                     is_proper_word = (len(lemma) >= 1) and lemma[0].isalpha()
                     if is_proper_word:

@@ -88,7 +88,6 @@ def test_can_ignore_stopwords(nlp_en):
     counter = analysis.LemmaCounter(nlp_en, count_stopwords=False, use_pos=False)
     counter.count('This is the best soap.')
     assert counter.lemma_pos_to_count_map == {
-        ('this', None): 1,
         ('good', None): 1,
         ('soap', None): 1,
     }
