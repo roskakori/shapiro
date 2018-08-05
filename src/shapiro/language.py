@@ -262,22 +262,66 @@ class GermanSentiment(LanguageSentiment):
             'etwas',
         }
         self.intensifiers = {
+            'besonders',
             'extrem',
             'sehr',
             'wirklich',
+            'ziemlich',
             'zu',
         }
         self.negatives = {
             'beschissen': Rating.VERY_BAD,
+            'durchschnittlich': Rating.SOMEWHAT_BAD,
             'furchtbar': Rating.VERY_BAD,
+            'ineffizient': Rating.BAD,
+            'mühsam': Rating.SOMEWHAT_BAD,
+            'schal': Rating.BAD,
             'schlecht': Rating.BAD,
+            'uneffektiv': Rating.BAD,
+            'ungut': Rating.BAD,
+            'unschön': Rating.SOMEWHAT_BAD,
+            'übel': Rating.BAD,
+            'unterdurchschnittlich': Rating.BAD,
+            'verbesserungsfähig': Rating.BAD,
+            'verbesserungswürdig': Rating.BAD,
+
+            # TODO: Add special logic for modals.
+            'könnte': Rating.SOMEWHAT_BAD,
+            'könnten': Rating.SOMEWHAT_BAD,
+            'müsste': Rating.SOMEWHAT_BAD,
+            'müssten': Rating.SOMEWHAT_BAD,
+            'sollte': Rating.SOMEWHAT_BAD,
+            'sollten': Rating.SOMEWHAT_BAD,
+            'wär': Rating.SOMEWHAT_BAD,
+            'wäre': Rating.SOMEWHAT_BAD,
+            'wären': Rating.SOMEWHAT_BAD,
+            'wärn': Rating.SOMEWHAT_BAD,
         }
         self.positives = {
+            'ausgezeichnet': Rating.VERY_GOOD,
+            'bestens': Rating.VERY_GOOD,
+            'entzückend': Rating.VERY_GOOD,
+            'effektiv': Rating.GOOD,
+            'effizient': Rating.GOOD,
             'exzellent': Rating.VERY_GOOD,
+            'fantastisch': Rating.VERY_GOOD,
+            'geil': Rating.GOOD,
             'gut': Rating.GOOD,
+            'nett': Rating.GOOD,
+            'ok': Rating.SOMEWHAT_GOOD,
+            'okay': Rating.SOMEWHAT_GOOD,
+            'reichhaltig': Rating.GOOD,
+            'reizend': Rating.GOOD,
+            'super': Rating.VERY_GOOD,
+            'toll': Rating.VERY_GOOD,
+            'top': Rating.VERY_GOOD,
+            'überdurchschnittlich': Rating.SOMEWHAT_GOOD,
+            'überzeugend': Rating.SOMEWHAT_GOOD,
+            'vorzüglich': Rating.VERY_GOOD,
             'wunderbar': Rating.VERY_GOOD,
         }
         self.idioms = {
+            'wenig berauschend': Rating.SOMEWHAT_BAD,
             'luft nach oben': Rating.SOMEWHAT_GOOD,
         }
         self.negations = {
