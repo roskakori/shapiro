@@ -6,6 +6,7 @@ import re
 from typing import Dict, Pattern, Tuple
 
 from shapiro import common, tools
+from shapiro.common import Rating
 
 #: Prefix used to mark unified emojis.
 EMOJI_PREFIX = 'emoji__'
@@ -77,7 +78,8 @@ def _compiled_source_pattern_to_target_word_map(
     if synonym_source_to_target_map is not None:
         for source_text, target_text in synonym_source_to_target_map.items():
             try:
-                source_regex = re.compile(r'\b' + re.escape(source_text) + regex_at_end, re.IGNORECASE)
+                escaped_source_text = re.escape(source_text).replace(r'\ ', r'\s+')
+                source_regex = re.compile(r'\b' + escaped_source_text + regex_at_end, re.IGNORECASE)
             except re.error as error:
                 raise ValueError('cannot convert %s %r to regular expression: %s' % (name, source_text, error))
             result[source_regex] = target_text
@@ -147,3 +149,23 @@ def unified_emoticons(text: str) -> str:
         if is_debug and (result != old_result):
             _log.debug(f'  unified emoticon {source_text} to {target_text}')
     return result
+
+
+def compiled_idiom_to_localized_rating_text_map(
+        idiom_to_rating_map: Dict[str, Rating], rating_to_localized_text_map: Dict[Pattern, str]):
+    idiom_to_localized_rating_text_map = {}
+    for idiom, rating in idiom_to_rating_map.items():
+        localized_rating_text = rating_to_localized_text_map.get(rating)
+        if localized_rating_text is None:
+            raise KeyError(f'idiom "{idiom}" is mapped to rating {rating} '
+                           f'but must be one of {common.VALID_RATING_NAMES}')
+        idiom_to_localized_rating_text_map[idiom] = localized_rating_text
+    return _compiled_source_pattern_to_target_word_map('idiom', idiom_to_localized_rating_text_map, r'\b')
+
+
+def replaced_idioms(
+        sentence: str, idiom_to_localized_text_map: Dict[str, str]) -> str:
+    assert sentence is not None
+    assert idiom_to_localized_text_map is not None
+
+    return _replaced('idiom', sentence, idiom_to_localized_text_map)

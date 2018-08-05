@@ -2,6 +2,7 @@
 Tests for :py:mod:`shapiro.preprocess`.
 """
 from shapiro import common, preprocess
+from shapiro.common import Rating
 
 
 def test_can_replace_synonyms():
@@ -45,3 +46,23 @@ def test_can_create_default_emoticon_to_name_and_rating_map():
     assert ':-)' in emoticon_to_name_and_rating_map
     assert '^_^' in emoticon_to_name_and_rating_map
     assert emoticon_to_name_and_rating_map['🙂'] == ('slightly_smiling_face', common.Rating.SOMEWHAT_GOOD)
+
+
+def test_can_replace_idioms():
+    idiom_to_rating_map = {
+        'blessing in disguise': Rating.GOOD,
+        'cut corners': Rating.VERY_BAD,
+        'elephant in the room': Rating.BAD,
+        'up to par': Rating.GOOD,
+    }
+    rating_to_localized_text_map = {
+        rating: rating.name.lower().replace('_', ' ') for rating in Rating
+    }
+
+    idiom_to_localized_rating_text_map = preprocess.compiled_idiom_to_localized_rating_text_map(
+        idiom_to_rating_map, rating_to_localized_text_map)
+    assert len(idiom_to_rating_map) == len(idiom_to_localized_rating_text_map)
+
+    initial_sentence = 'The service is up to par with other shops.'
+    actual_sentence = preprocess.replaced_idioms(initial_sentence, idiom_to_localized_rating_text_map)
+    assert actual_sentence == 'The service is good with other shops.'
