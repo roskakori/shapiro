@@ -3,9 +3,9 @@ Functions to preprocess sentences for sentiment analysis.
 """
 import logging
 import re
-from typing import Dict, Pattern
+from typing import Dict, Pattern, Tuple
 
-from shapiro import tools
+from shapiro import common, tools
 
 #: Prefix used to mark unified emojis.
 EMOJI_PREFIX = 'emoji__'
@@ -13,28 +13,53 @@ EMOJI_PREFIX = 'emoji__'
 _log = tools.log
 
 
-_WESTERN_SMILEY_TO_EMOJI_NAME_MAP = {
-    ':)': 'slight_smile',
-    ':-)': 'slight_smile',
-    '=)': 'slight_smile',
-    ':(': 'slight_frown',
-    ':-(': 'slight_frown',
-    ':D': 'smile',
-    ':-D': 'smile',
-    ':P': 'stuck_out_tongue',
-    ':-P': 'stuck_out_tongue',
-    ';)': 'wink',
-    ';-)': 'wink',
-}
+_DEFAULT_EMOTICONS_CSV_PATH = common.lexicon_path('emoticons_lexicon.csv')
 
-_EASTERN_SMILEY_TO_EMOJI_NAME_MAP = {
-    '^^': 'slight_smile',
-    '^_^': 'slight_smile',
-}
-#: Unicode emojis, see also: http://www.unicode.org/emoji/charts/full-emoji-list.html
-_EMOJI_TO_NAME_MAP = {
-    '\U0001F642': 'slight_smile',  # ☺
-}
+
+def create_emoticon_to_name_and_rating_map(emoticons_csv_path: str=None) -> Dict[str, Tuple[str, common.Rating]]:
+    """
+    Mapping read from CSV file ``emoticons_csv_path`` for emoticon to a tuple
+    with the name and the :py:class:`shapiro.common.Rating` assigned to it.
+
+    If no ``emoticons_csv_path`` is specified, internal defaults are used.
+    """
+    result = {}
+    actual_emoticons_csv_path = emoticons_csv_path if emoticons_csv_path is not None else _DEFAULT_EMOTICONS_CSV_PATH
+    emoticon_to_row_index_map = {}
+    _log.info('reading emoticons from "%s"', actual_emoticons_csv_path)
+    for row_index, row in enumerate(common.csv_rows(actual_emoticons_csv_path)):
+        emoticon, name, rating = _emoticon_name_and_rating_from_emtiocon_csv_row(
+            actual_emoticons_csv_path, emoticon_to_row_index_map, row, row_index)
+        result[emoticon] = (name, rating)
+    return result
+
+
+def _emoticon_name_and_rating_from_emtiocon_csv_row(
+        emoticons_csv_path, emoticon_to_row_index_map, row, row_index):
+    if len(row) < 3:
+        raise common.OpinionCsvError(
+            f'row must have at least 3 items: {row}', emoticons_csv_path, row_index)
+    row = [item.strip() for item in row[:3]]
+    for cell_index, cell in enumerate(row):
+        if cell == '':
+            raise common.OpinionCsvError(
+                'cell must contain text', emoticons_csv_path, row_index, cell_index)
+    emoticon, name, rating_name = row[:3]
+    clashing_emoticon_row = emoticon_to_row_index_map.get(emoticon)
+    if clashing_emoticon_row is not None:
+        raise common.OpinionCsvError(
+            f'emoticon "{emoticon}" must be unique but has already been defined in R{clashing_emoticon_row + 1}',
+            row_index, 0)
+    mappable_rating_name = rating_name.replace(' ', '_').upper()
+    try:
+        rating = common.Rating[mappable_rating_name]
+    except KeyError:
+        raise common.OpinionCsvError(
+            f'rating "{mappable_rating_name}" (transformed from "{rating_name}") '
+            f'must be one of {common.VALID_RATING_NAMES}',
+            emoticons_csv_path, row_index, 2)
+    name = name.replace(' ', '_')
+    return emoticon, name, rating
 
 
 def compiled_synonym_source_to_target_map(synonym_source_to_target_map: Dict[str, str]) -> Dict[Pattern, str]:
@@ -109,21 +134,16 @@ def replaced_abbreviations(sentence: str,
     return _replaced('abbreviation', sentence, abbreviation_pattern_to_full_text_map)
 
 
-def unified_emojis(text: str, unify_western_smileys=True, unify_eastern_smileys=True) -> str:
+def unified_emoticons(text: str) -> str:
     assert text is not None
 
-    emoji_to_name_map = dict(_EMOJI_TO_NAME_MAP)
-    if unify_eastern_smileys:
-        emoji_to_name_map.update(_EASTERN_SMILEY_TO_EMOJI_NAME_MAP)
-    if unify_western_smileys:
-        emoji_to_name_map.update(_WESTERN_SMILEY_TO_EMOJI_NAME_MAP)
     result = text
-
+    emoticon_to_name_map_and_rating = create_emoticon_to_name_and_rating_map()
     is_debug = _log.isEnabledFor(logging.DEBUG)
-    for source_text, target_text in emoji_to_name_map.items():
+    for source_text, (target_text, _) in emoticon_to_name_map_and_rating.items():
         target_text = EMOJI_PREFIX + target_text + ' '
         old_result = result
         result = result.replace(source_text, target_text)
         if is_debug and (result != old_result):
-            _log.debug('unified emoji %r to %s', source_text, target_text)
+            _log.debug(f'  unified emoticon {source_text} to {target_text}')
     return result

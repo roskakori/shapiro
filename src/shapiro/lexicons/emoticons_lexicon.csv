@@ -88,3 +88,20 @@
 🖕,middle finger,very_bad
 👏,clapping hands,good
 👀,eyes,somewhat_bad
+,,
+#,Western smiley codes,
+:),happy face,somewhat_good
+:-),happy face,somewhat_good
+Err:508,happy face,somewhat_good
+:(,frowning face,bad
+:-(,frowning face,bad
+:D,laughing,very_good
+:-D,laughing,very_good
+:P,face with tongue,somewhat_good
+:-P,face with tongue,somewhat_good
+;),wink,somewhat_good
+;-),wink,somewhat_good
+,,
+#,Eastern smiley codes,
+^^,slightly smiling face,somewhat_good
+^_^,slightly smiling face,somewhat_good
