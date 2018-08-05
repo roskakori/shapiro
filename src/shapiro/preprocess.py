@@ -8,8 +8,8 @@ from typing import Dict, Pattern, Tuple
 from shapiro import common, tools
 from shapiro.common import Rating
 
-#: Prefix used to mark unified emojis.
-EMOJI_PREFIX = 'emoji__'
+#: Prefix used to mark unified emoticons in a text. See also :py:func:`unified_emoticons`.
+EMOTICON_PREFIX = 'emoticon__'
 
 _log = tools.log
 
@@ -143,7 +143,7 @@ def unified_emoticons(text: str) -> str:
     emoticon_to_name_map_and_rating = create_emoticon_to_name_and_rating_map()
     is_debug = _log.isEnabledFor(logging.DEBUG)
     for source_text, (target_text, _) in emoticon_to_name_map_and_rating.items():
-        target_text = EMOJI_PREFIX + target_text + ' '
+        target_text = EMOTICON_PREFIX + target_text + ' '
         old_result = result
         result = result.replace(source_text, target_text)
         if is_debug and (result != old_result):

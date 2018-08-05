@@ -16,9 +16,9 @@ def test_can_replace_synonyms():
 
 
 def test_can_unify_emoticons():
-    expected_text = 'smile: emoji__happy_face , ' \
-                    'smile more: emoji__slightly_smiling_face , ' \
-                    'smile again: emoji__slightly_smiling_face '
+    expected_text = 'smile: emoticon__happy_face , ' \
+                    'smile more: emoticon__slightly_smiling_face , ' \
+                    'smile again: emoticon__slightly_smiling_face '
     assert expected_text == preprocess.unified_emoticons('smile: :-), smile more: ^^, smile again: \U0001F642')
 
 
