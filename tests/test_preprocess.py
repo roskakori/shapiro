@@ -42,4 +42,6 @@ def test_can_create_default_emoticon_to_name_and_rating_map():
     emoticon_to_name_and_rating_map = preprocess.create_emoticon_to_name_and_rating_map()
     assert len(emoticon_to_name_and_rating_map) != 0
     assert '🙂' in emoticon_to_name_and_rating_map
+    assert ':-)' in emoticon_to_name_and_rating_map
+    assert '^_^' in emoticon_to_name_and_rating_map
     assert emoticon_to_name_and_rating_map['🙂'] == ('slightly_smiling_face', common.Rating.SOMEWHAT_GOOD)
