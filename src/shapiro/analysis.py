@@ -317,17 +317,28 @@ class OpinionMiner:
             self.nlp.remove_pipe('opinion_matcher')
         self.nlp.add_pipe(opinion_matcher)
 
-    def opinions(self, text: str) -> Generator[Tuple[Enum, Rating, List[Token]], None, None]:
+    def opinions(self, text: str, expected_topic=None) -> Generator[Tuple[Enum, Rating, List[Token]], None, None]:
         """
         Opinions found in ``text``. This yields an opinion for each sent in text.
+
+        If ``expected_topic`` is specified, it will be used as topic if the
+        first sentence with a rating does not have another topic. This is
+        useful if ``text`` is an answer to a question about a certain topic,
+        for example: "How did you like the wine?" - "It was too warm."
         """
         assert text is not None
 
         _log.info('preprocessing text')
         document = self.nlp(self._preprocessed_text(text))
+        previous_topic = expected_topic
         for sent in document.sents:
             _log.info('analyzing: %s', str(sent).strip())
             topic, rating = self._topic_and_rating_of(sent)
+            if topic is None and rating is not None and previous_topic is not None:
+                _log.debug('  no topic found, using previous topic: %s', previous_topic.name)
+                topic = previous_topic
+            else:
+                previous_topic = topic
             yield topic, rating, sent
 
     def _preprocessed_text(self, text: str) -> str:

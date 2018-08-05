@@ -109,7 +109,6 @@ def test_can_find_opinions(nlp_en: Language, lexicon_restauranteering: Lexicon, 
     feedback_text = """The schnitzel was not very tasty.
         The waiter was polite.
         The football game ended 2:1."""
-    analysis.add_token_extension(True)
     opinion_miner = analysis.OpinionMiner(nlp_en, lexicon_restauranteering, english_sentiment, RestaurantTopic)
     opinions = opinion_miner.opinions(feedback_text)
     opinions_with_text = [
@@ -126,7 +125,6 @@ def test_can_find_opinions(nlp_en: Language, lexicon_restauranteering: Lexicon, 
 def test_can_find_opinions_with_idioms(
         nlp_en: Language, lexicon_restauranteering: Lexicon, english_sentiment: EnglishSentiment):
     feedback_text = 'The schnitzel was not up to par with other restaurants.'
-    analysis.add_token_extension(True)
     opinion_miner = analysis.OpinionMiner(nlp_en, lexicon_restauranteering, english_sentiment, RestaurantTopic)
     opinions = opinion_miner.opinions(feedback_text)
     opinions_with_text = [
@@ -135,4 +133,33 @@ def test_can_find_opinions_with_idioms(
     ]
     assert opinions_with_text == [
         (RestaurantTopic.FOOD, Rating.BAD, 'The schnitzel was not good with other restaurants.'),
+    ]
+
+
+def test_can_use_previous_topic_for_opinion(
+        nlp_en: Language, lexicon_restauranteering: Lexicon, english_sentiment: EnglishSentiment):
+    feedback_text = 'The waiter was very polite. He was not quick though.'
+    opinion_miner = analysis.OpinionMiner(nlp_en, lexicon_restauranteering, english_sentiment, RestaurantTopic)
+    opinions = opinion_miner.opinions(feedback_text)
+    opinions_with_text = [
+        (topic, rating, str(sent).strip())
+        for topic, rating, sent in opinions
+    ]
+    assert opinions_with_text == [
+        (RestaurantTopic.SERVICE, Rating.VERY_GOOD, 'The waiter was very polite.'),
+        (RestaurantTopic.SERVICE, Rating.BAD, 'He was not quick though.'),
+    ]
+
+
+def test_can_use_expected_topic_for_opinion(
+        nlp_en: Language, lexicon_restauranteering: Lexicon, english_sentiment: EnglishSentiment):
+    feedback_text = 'They were very polite.'
+    opinion_miner = analysis.OpinionMiner(nlp_en, lexicon_restauranteering, english_sentiment, RestaurantTopic)
+    opinions = opinion_miner.opinions(feedback_text, RestaurantTopic.FOOD)
+    opinions_with_text = [
+        (topic, rating, str(sent).strip())
+        for topic, rating, sent in opinions
+    ]
+    assert opinions_with_text == [
+        (RestaurantTopic.SERVICE, Rating.VERY_GOOD, 'They were very polite.'),
     ]
