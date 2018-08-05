@@ -28,14 +28,16 @@ def parsed_args(arguments: Sequence[str]):
 
     parser_analyze = subparsers.add_parser(
         'analyze', help='extract opinions from a text')
-    _add_language_argument(parser_analyze)
+    _add_debug_argument(parser_analyze)
     parser_analyze.add_argument(
         '--encoding', '-e', default=_DEFAULT_ENCODING,
         help='encoding of TEXT-FILE, default: %(default)s')
+    _add_language_argument(parser_analyze)
     parser_analyze.add_argument(
-        'lexicon_csv_path', metavar='LEXICON-FILE')
+        'lexicon_csv_path', metavar='LEXICON-FILE',
+        help='CSV file with lexicon to use for analysis')
     parser_analyze.add_argument(
-        'text_to_analyze_path', metavar='TEXT-FILE')
+        'text_to_analyze_paths', metavar='TEXT-FILE', nargs='+', help='text file(s) to analyze')
     parser_analyze.set_defaults(func=command_analyze)
 
     parser_count = subparsers.add_parser(
@@ -66,6 +68,13 @@ def parsed_args(arguments: Sequence[str]):
     return result
 
 
+def _add_debug_argument(parser: argparse.ArgumentParser):
+    """
+    Add ``--debug`` to an :class:`argparse.ArgumentParser` enables debug logging.
+    """
+    parser.add_argument('--debug', '-D', action='store_true', help='enable debug logging')
+
+
 def _add_language_argument(parser: argparse.ArgumentParser):
     """
     Add ``--language`` to an :class:`argparse.ArgumentParser` that refers to a
@@ -76,27 +85,37 @@ def _add_language_argument(parser: argparse.ArgumentParser):
                         help='two letter ISO-639-1 language code for spaCy; default: %(default)s')
 
 
+def _possibly_enable_debug_logging(args: argparse.Namespace):
+    if args.debug:
+        _log.setLevel(logging.DEBUG)
+
+
 def command_analyze(args: argparse.Namespace):
     nlp = _nlp(args)
     # FIXME: Use generic topics instead of hard coded RestaurantTopic.
     lexicon = analysis.Lexicon(RestaurantTopic, Rating)
     lexicon.read_from_csv(args.lexicon_csv_path, encoding=args.encoding)
-    text_to_analyze_path = args.text_to_analyze_path
-    with open(text_to_analyze_path, 'r', encoding=args.encoding) as text_to_analyze_file:
-        # NOTE: Memory wise it would generally be nicer to read the text line by line.
-        # However we cannot ensure that the end of a line also constitutes the end of
-        # a sentence, so we need to read the whole text and pass it to spaCy to split
-        # into sentences.
-        text = text_to_analyze_file.read()
     language_sentiment = language_sentiment_for(args.language)
     opinion_miner = analysis.OpinionMiner(nlp, lexicon, language_sentiment)
-    for topic, rating, sent in opinion_miner.opinions(text):
-        topic_text = topic.name.lower() if topic is not None else ''
-        rating_text = rating.name.lower() if rating is not None else ''
-        sent_text = str(sent).strip()
-        # TODO: Use proper csv.writer() instead of hacked together escaping.
-        csv_escaped_sent_text = '"' + sent_text.replace('"', '""') + '"'
-        print(f'{topic_text},{rating_text},{csv_escaped_sent_text}')
+    _possibly_enable_debug_logging(args)
+
+    print('# topic,rating,text')
+    text_to_analyze_paths = args.text_to_analyze_paths
+    for text_to_analyze_path in text_to_analyze_paths:
+        _log.info('reading text to analyze from "%s"', text_to_analyze_path)
+        with open(text_to_analyze_path, 'r', encoding=args.encoding) as text_to_analyze_file:
+            # NOTE: Memory wise it would generally be nicer to read the text line by line.
+            # However we cannot ensure that the end of a line also constitutes the end of
+            # a sentence, so we need to read the whole text and pass it to spaCy to split
+            # into sentences.
+            text = text_to_analyze_file.read()
+        for topic, rating, sent in opinion_miner.opinions(text):
+            topic_text = topic.name.lower() if topic is not None else ''
+            rating_text = rating.name.lower() if rating is not None else ''
+            sent_text = str(sent).strip()
+            # TODO: Use proper csv.writer() instead of hacked together escaping.
+            csv_escaped_sent_text = '"' + sent_text.replace('"', '""') + '"'
+            print(f'{topic_text},{rating_text},{csv_escaped_sent_text}')
 
 
 def command_count(args: argparse.Namespace):

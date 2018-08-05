@@ -8,7 +8,7 @@ from typing import Any, Dict, Generator, List, Pattern, Sequence, Tuple, Union
 
 import spacy
 from shapiro import tools
-from shapiro.common import Rating, negated_rating
+from shapiro.common import Rating, debugged_token, negated_rating
 from shapiro.language import LanguageSentiment
 from spacy.language import Language
 from spacy.tokens import Token
@@ -327,11 +327,9 @@ class OpinionMiner:
         result_topic = None
         result_rating = None
         opinion_essence = OpinionMiner._essential_tokens(tokens)
-        # print('  1: ', opinion_essence)
         self._combine_ratings(opinion_essence)
-        # print('  2: ', opinion_essence)
         for token in opinion_essence:
-            _log.debug('  using token for opinion: %s')
+            _log.debug('  using token for opinion: %s', debugged_token(token))
             # print(debugged_token(token))
             if (token._.topic is not None) and (result_topic is None):
                 result_topic = token._.topic
@@ -368,6 +366,7 @@ class OpinionMiner:
             # Apply modifiers to the left on the rating.
             original_rating_token = tokens[rating_token_index]
             combined_rating = original_rating_token._.rating
+            combined_text = original_rating_token.text
             modifier_token_index = rating_token_index - 1
             modified = True  # Did the last iteration modify anything?
             while modified and modifier_token_index >= 0:
@@ -383,8 +382,11 @@ class OpinionMiner:
                     # to the left of this rating.
                     modified = False
                 if modified:
-                    # Discord the current modifier
+                    # Discard the current modifier
                     # and move on to the token on the left.
+                    combined_text = modifier_token.text + '+' + combined_text
                     del tokens[modifier_token_index]
                     modifier_token_index -= 1
+                    _log.debug('  combining %s and %s to %s -> %s',
+                               modifier_token, original_rating_token.text, combined_text, combined_rating.name)
             original_rating_token._.rating = combined_rating
