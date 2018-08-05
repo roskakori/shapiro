@@ -4,12 +4,15 @@ Types and functions for sentiment analysis.
 import csv
 import re
 from enum import Enum
-from typing import Any, Dict, Generator, List, Pattern, Sequence, Tuple, Union
+from typing import Dict, Generator, List, Pattern, Sequence, Tuple, Union
 
 import spacy
 from shapiro import tools
 from shapiro.common import Rating, debugged_token, negated_rating
 from shapiro.language import LanguageSentiment
+from shapiro.preprocess import (compiled_idiom_to_localized_rating_text_map,
+                                create_emoticon_to_name_and_rating_map,
+                                replaced_idioms)
 from spacy.language import Language
 from spacy.tokens import Token
 
@@ -276,7 +279,11 @@ class OpinionMiner:
         assert language_sentiment is not None
         self.nlp = nlp
         self.language_sentiment = language_sentiment
+        self.lexicon = lexicon
         self._topic_type = topic_type
+        self._emoticon_to_name_and_rating_map = create_emoticon_to_name_and_rating_map()
+        self._idiom_to_localized_rating_text_map = compiled_idiom_to_localized_rating_text_map(
+            language_sentiment.idioms, language_sentiment.rating_to_localized_text_map)
 
         def opinion_matcher(doc):
             """
@@ -292,7 +299,7 @@ class OpinionMiner:
                     elif self.language_sentiment.is_negation(token):
                         token._.is_negation = True
                     else:
-                        lexicon_entry = lexicon.lexicon_entry_for(token)
+                        lexicon_entry = self.lexicon.lexicon_entry_for(token)
                         if lexicon_entry is not None:
                             token._.rating = lexicon_entry.rating
                             token._.topic = lexicon_entry.topic
@@ -316,11 +323,17 @@ class OpinionMiner:
         """
         assert text is not None
 
-        document = self.nlp(text)
+        _log.info('preprocessing text')
+        document = self.nlp(self._preprocessed_text(text))
         for sent in document.sents:
             _log.info('analyzing: %s', str(sent).strip())
             topic, rating = self._topic_and_rating_of(sent)
             yield topic, rating, sent
+
+    def _preprocessed_text(self, text: str) -> str:
+        result = text
+        result = replaced_idioms(text, self._idiom_to_localized_rating_text_map)
+        return result
 
     def _topic_and_rating_of(self, tokens: List[Token]) -> Tuple[Enum, Rating]:
         assert tokens is not None
@@ -360,7 +373,6 @@ class OpinionMiner:
                 if tokens[token_index]._.rating is not None
             ),
             None  # Default if no rating token can be found
-
         )
 
         if rating_token_index is not None:

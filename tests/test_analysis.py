@@ -121,3 +121,18 @@ def test_can_find_opinions(nlp_en: Language, lexicon_restauranteering: Lexicon, 
         (RestaurantTopic.SERVICE, Rating.GOOD, 'The waiter was polite.'),
         (None, None, 'The football game ended 2:1.')
     ]
+
+
+def test_can_find_opinions_with_idioms(
+        nlp_en: Language, lexicon_restauranteering: Lexicon, english_sentiment: EnglishSentiment):
+    feedback_text = 'The schnitzel was not up to par with other restaurants.'
+    analysis.add_token_extension(True)
+    opinion_miner = analysis.OpinionMiner(nlp_en, lexicon_restauranteering, english_sentiment, RestaurantTopic)
+    opinions = opinion_miner.opinions(feedback_text)
+    opinions_with_text = [
+        (topic, rating, str(sent).strip())
+        for topic, rating, sent in opinions
+    ]
+    assert opinions_with_text == [
+        (RestaurantTopic.FOOD, Rating.BAD, 'The schnitzel was not good with other restaurants.'),
+    ]

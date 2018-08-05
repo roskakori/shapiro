@@ -21,6 +21,7 @@ class LanguageSentiment:
         self.positives: Dict[str, Rating] = {}
         self.idioms: Dict[str, Rating] = {}
         self.negations: Set[str] = set()
+        self.rating_to_localized_text_map: Dict[Rating, str] = {}
 
     def diminished(self, rating: Rating) -> Rating:
         if abs(rating.value) > 1:
@@ -249,6 +250,9 @@ class EnglishSentiment(LanguageSentiment):
             'wouldn\'t',
             'wouldnt',
         }
+        self.rating_to_localized_text_map = {
+            rating: rating.name.lower().replace('_', ' ') for rating in Rating
+        }
 
 
 class GermanSentiment(LanguageSentiment):
@@ -330,6 +334,14 @@ class GermanSentiment(LanguageSentiment):
             'keiner',
             'keines',
             'nicht',
+        }
+        self.rating_to_localized_text_map = {
+            Rating.VERY_GOOD: 'sehr gut',
+            Rating.GOOD: 'gut',
+            Rating.SOMEWHAT_GOOD: 'eher gut',
+            Rating.SOMEWHAT_BAD: 'eher schlecht',
+            Rating.BAD: 'schlecht',
+            Rating.VERY_BAD: 'sehr schlecht',
         }
 
 
