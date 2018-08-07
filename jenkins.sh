@@ -15,7 +15,7 @@ pip install --upgrade pygount
 pygount --format=cloc-xml --out=cloc.xml
 
 # Check coding guidelines.
-tox -e flake 8
+tox -e flake8
 
 # Run tests.
 #
