@@ -7,15 +7,15 @@ set -e
 # Setup the Python environment.
 python3 -m venv .jenkins_env_shapiro
 source .jenkins_env_shapiro/bin/activate
-pip install --upgrade pip
-pip install --upgrade wheel
+pip3 install --upgrade pip
+pip3 install --upgrade wheel
 
 # Measure size of project
-pip install --upgrade pygount
+pip3 install --upgrade pygount
 pygount --format=cloc-xml --out=cloc.xml
 
 # Check coding guidelines.
-tox -e flake8
+# TODO: Reactivate: tox -e flake8
 
 # Run tests.
 #
