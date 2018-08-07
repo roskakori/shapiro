@@ -9,6 +9,12 @@ python3 -m venv .jenkins_env_shapiro
 source .jenkins_env_shapiro/bin/activate
 pip3 install --upgrade pip
 pip3 install --upgrade wheel
+pip3 install -r requirements.txt
+pip3 install -r dev_requirements.txt
+
+# Install spaCy language models
+python -m spacy download de
+python -m spacy download en
 
 # Measure size of project
 pip3 install --upgrade pygount
