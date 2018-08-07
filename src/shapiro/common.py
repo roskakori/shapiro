@@ -30,9 +30,10 @@ class OpinionCsvError(OpinionError):
         if row_index is not None:
             full_message += f' (R{row_index + 1}'
             if cell_index is not None:
-                full_message += f':C{cell_index + 1}'
+                full_message += f'C{cell_index + 1}'
             full_message += ')'
         full_message += f': {message}'
+        super().__init__(full_message)
 
 
 class Rating(Enum):
