@@ -14,6 +14,13 @@ pip install --upgrade wheel
 pip install --upgrade pygount
 pygount --format=cloc-xml --out=cloc.xml
 
-# Run tox tests.
-tox
+# Check coding guidelines.
+tox -e flake 8
+
+# Run tests.
+#
+# HACK: We should be able to do this with "tox" but for some reason it does
+# not write coverage data.
+python3 setup.py test
+
 deactivate
