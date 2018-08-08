@@ -75,7 +75,7 @@ class LexiconEntry:
     """
     _IS_REGEX_REGEX = re.compile(r'.*[.+*\[$^\\]')
 
-    def __init__(self, lemma: str, topic: Enum, rating: Rating):
+    def __init__(self, lemma: str, topic: Enum=None, rating: Rating=None):
         assert lemma is not None
         self.lemma = lemma
         self._lower_lemma = lemma.lower()
