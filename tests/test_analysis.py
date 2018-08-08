@@ -24,8 +24,14 @@ def _token_for(nlp: Language, word: str) -> Token:
 
 def test_can_match_exact_lexicon_entry(nlp_en: Language):
     chicken_token = _token_for(nlp_en, _CHICKEN)
-    chicken_entry = analysis.LexiconEntry(_CHICKEN, RestaurantTopic, None)
+    chicken_entry = analysis.LexiconEntry(_CHICKEN, RestaurantTopic.FOOD)
     assert tools.is_close(chicken_entry.matching(chicken_token), 1.0)
+
+
+def test_can_match_regex_lexicon_entry(nlp_en: Language):
+    chicken_token = _token_for(nlp_en, _CHICKEN)
+    chicken_entry = analysis.LexiconEntry(f'.*{_CHICKEN.lower()}', RestaurantTopic.FOOD)
+    assert chicken_entry.matching(chicken_token) >= 0.5
 
 
 def test_can_read_lexicon_csv(nlp_en: Language, en_restauranteering_csv_path: str):

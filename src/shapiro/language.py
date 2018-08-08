@@ -257,30 +257,37 @@ class EnglishSentiment(LanguageSentiment):
 
 class GermanSentiment(LanguageSentiment):
     def __init__(self):
-        super().__init__('en')
+        super().__init__('de')
         self.diminishers = {
             'eher',
-            'ein kleines bißchen',
+            'bisschen',
             'ein wenig',
             'einigermaßen',
             'etwas',
         }
         self.intensifiers = {
+            'absolut',
             'besonders',
             'extrem',
             'sehr',
+            'total',
+            'voll',
+            'vollkommen',
             'wirklich',
             'ziemlich',
             'zu',
         }
         self.negatives = {
+            'ausbaufähig': Rating.BAD,
             'beschissen': Rating.VERY_BAD,
             'durchschnittlich': Rating.SOMEWHAT_BAD,
             'furchtbar': Rating.VERY_BAD,
             'ineffizient': Rating.BAD,
+            'mau': Rating.SOMEWHAT_BAD,
             'mühsam': Rating.SOMEWHAT_BAD,
             'schal': Rating.BAD,
             'schlecht': Rating.BAD,
+            'uncharmant': Rating.BAD,
             'uneffektiv': Rating.BAD,
             'ungut': Rating.BAD,
             'unschön': Rating.SOMEWHAT_BAD,
@@ -288,14 +295,12 @@ class GermanSentiment(LanguageSentiment):
             'unterdurchschnittlich': Rating.BAD,
             'verbesserungsfähig': Rating.BAD,
             'verbesserungswürdig': Rating.BAD,
+            'wünschenswert': Rating.BAD,
 
             # TODO: Add special logic for modals.
-            'könnte': Rating.SOMEWHAT_BAD,
-            'könnten': Rating.SOMEWHAT_BAD,
-            'müsste': Rating.SOMEWHAT_BAD,
-            'müssten': Rating.SOMEWHAT_BAD,
-            'sollte': Rating.SOMEWHAT_BAD,
-            'sollten': Rating.SOMEWHAT_BAD,
+            'können': Rating.SOMEWHAT_BAD,
+            'müssen': Rating.SOMEWHAT_BAD,
+            'sollen': Rating.SOMEWHAT_BAD,
             'wär': Rating.SOMEWHAT_BAD,
             'wäre': Rating.SOMEWHAT_BAD,
             'wären': Rating.SOMEWHAT_BAD,
@@ -304,16 +309,25 @@ class GermanSentiment(LanguageSentiment):
         self.positives = {
             'ausgezeichnet': Rating.VERY_GOOD,
             'bestens': Rating.VERY_GOOD,
+            'Charme': Rating.GOOD,
+            'charmant': Rating.GOOD,
+            'cool': Rating.GOOD,
             'entzückend': Rating.VERY_GOOD,
             'effektiv': Rating.GOOD,
             'effizient': Rating.GOOD,
             'exzellent': Rating.VERY_GOOD,
             'fantastisch': Rating.VERY_GOOD,
             'geil': Rating.GOOD,
+            'gern': Rating.GOOD,
             'gut': Rating.GOOD,
+            'kompetent': Rating.GOOD,
+            'lässig': Rating.GOOD,
+            'leiwand': Rating.GOOD,
             'nett': Rating.GOOD,
             'ok': Rating.SOMEWHAT_GOOD,
             'okay': Rating.SOMEWHAT_GOOD,
+            'perfekt': Rating.VERY_GOOD,
+            'prima': Rating.VERY_GOOD,
             'reichhaltig': Rating.GOOD,
             'reizend': Rating.GOOD,
             'super': Rating.VERY_GOOD,
@@ -323,10 +337,17 @@ class GermanSentiment(LanguageSentiment):
             'überzeugend': Rating.SOMEWHAT_GOOD,
             'vorzüglich': Rating.VERY_GOOD,
             'wunderbar': Rating.VERY_GOOD,
+            'zufrieden': Rating.SOMEWHAT_GOOD
         }
         self.idioms = {
-            'wenig berauschend': Rating.SOMEWHAT_BAD,
+            'gerne wieder': Rating.GOOD,
+            'Gold wert': Rating.VERY_GOOD,
+            'ist spitze': Rating.VERY_GOOD,
+            'könnte etwas Liebe vertragen': Rating.SOMEWHAT_BAD,
             'luft nach oben': Rating.SOMEWHAT_GOOD,
+            'weiter so!': Rating.GOOD,
+            'wenig berauschend': Rating.SOMEWHAT_BAD,
+            'würde wieder': Rating.GOOD,
         }
         self.negations = {
             'kein',
