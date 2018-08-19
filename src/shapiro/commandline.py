@@ -34,6 +34,9 @@ def parsed_args(arguments: Sequence[str]):
         help='encoding of TEXT-FILE, default: %(default)s')
     _add_language_argument(parser_analyze)
     parser_analyze.add_argument(
+        '--immediately', '-i', action='store_true',
+        help='interpret TEXT-FILE as immediate text instead of path to file')
+    parser_analyze.add_argument(
         'lexicon_csv_path', metavar='LEXICON-FILE',
         help='CSV file with lexicon to use for analysis')
     parser_analyze.add_argument(
@@ -91,6 +94,15 @@ def _possibly_enable_debug_logging(args: argparse.Namespace):
 
 
 def command_analyze(args: argparse.Namespace):
+    def analyze(text: str):
+        for topic, rating, sent in opinion_miner.opinions(text):
+            topic_text = topic.name.lower() if topic is not None else ''
+            rating_text = rating.name.lower() if rating is not None else ''
+            sent_text = str(sent).strip()
+            # TODO: Use proper csv.writer() instead of hacked together escaping.
+            csv_escaped_sent_text = '"' + sent_text.replace('"', '""') + '"'
+            print(f'{topic_text},{rating_text},{csv_escaped_sent_text}')
+
     nlp = _nlp(args)
     # FIXME: Use generic topics instead of hard coded RestaurantTopic.
     lexicon = analysis.Lexicon(RestaurantTopic, Rating)
@@ -101,21 +113,19 @@ def command_analyze(args: argparse.Namespace):
 
     print('# topic,rating,text')
     text_to_analyze_paths = args.text_to_analyze_paths
-    for text_to_analyze_path in text_to_analyze_paths:
-        _log.info('reading text to analyze from "%s"', text_to_analyze_path)
-        with open(text_to_analyze_path, 'r', encoding=args.encoding) as text_to_analyze_file:
-            # NOTE: Memory wise it would generally be nicer to read the text line by line.
-            # However we cannot ensure that the end of a line also constitutes the end of
-            # a sentence, so we need to read the whole text and pass it to spaCy to split
-            # into sentences.
-            text = text_to_analyze_file.read()
-        for topic, rating, sent in opinion_miner.opinions(text):
-            topic_text = topic.name.lower() if topic is not None else ''
-            rating_text = rating.name.lower() if rating is not None else ''
-            sent_text = str(sent).strip()
-            # TODO: Use proper csv.writer() instead of hacked together escaping.
-            csv_escaped_sent_text = '"' + sent_text.replace('"', '""') + '"'
-            print(f'{topic_text},{rating_text},{csv_escaped_sent_text}')
+    if args.immediately:
+        text = ' '.join(text_to_analyze_paths)
+        analyze(text)
+    else:
+        for text_to_analyze_path in text_to_analyze_paths:
+            _log.info('reading text to analyze from "%s"', text_to_analyze_path)
+            with open(text_to_analyze_path, 'r', encoding=args.encoding) as text_to_analyze_file:
+                # NOTE: Memory wise it would generally be nicer to read the text line by line.
+                # However we cannot ensure that the end of a line also constitutes the end of
+                # a sentence, so we need to read the whole text and pass it to spaCy to split
+                # into sentences.
+                text = text_to_analyze_file.read()
+                analyze(text)
 
 
 def command_count(args: argparse.Namespace):

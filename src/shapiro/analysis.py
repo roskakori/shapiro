@@ -365,8 +365,14 @@ class OpinionMiner:
         return result_topic, result_rating
 
     @staticmethod
-    def _essential_tokens(tokens):
-        return [token for token in tokens if OpinionMiner._is_essential(token)]
+    def _essential_tokens(tokens: Sequence[Token]):
+        result = []
+        for token in tokens:
+            is_essential = OpinionMiner._is_essential(token)
+            _log.debug('  token: essential=%-5s; %s', is_essential, debugged_token(token))
+            if is_essential:
+                result.append(token)
+        return result
 
     @staticmethod
     def _is_essential(token: Token) -> bool:
