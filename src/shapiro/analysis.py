@@ -343,7 +343,7 @@ class OpinionMiner:
 
     def _preprocessed_text(self, text: str) -> str:
         result = text
-        result = replaced_idioms(text, self._idiom_to_localized_rating_text_map)
+        result = replaced_idioms(result, self._idiom_to_localized_rating_text_map)
         return result
 
     def _topic_and_rating_of(self, tokens: List[Token]) -> Tuple[Enum, Rating]:
