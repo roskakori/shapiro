@@ -279,12 +279,14 @@ class GermanSentiment(LanguageSentiment):
         }
         self.negatives = {
             'ausbaufähig': Rating.BAD,
+            'Bedenken': Rating.SOMEWHAT_BAD,
             'beschissen': Rating.VERY_BAD,
             'durchschnittlich': Rating.SOMEWHAT_BAD,
             'furchtbar': Rating.VERY_BAD,
             'ineffizient': Rating.BAD,
             'mau': Rating.SOMEWHAT_BAD,
             'mühsam': Rating.SOMEWHAT_BAD,
+            'obwohl': Rating.BAD,
             'schal': Rating.BAD,
             'schlecht': Rating.BAD,
             'uncharmant': Rating.BAD,
@@ -326,6 +328,7 @@ class GermanSentiment(LanguageSentiment):
             'nett': Rating.GOOD,
             'ok': Rating.SOMEWHAT_GOOD,
             'okay': Rating.SOMEWHAT_GOOD,
+            'passen': Rating.GOOD,
             'perfekt': Rating.VERY_GOOD,
             'prima': Rating.VERY_GOOD,
             'reichhaltig': Rating.GOOD,
@@ -336,6 +339,7 @@ class GermanSentiment(LanguageSentiment):
             'überdurchschnittlich': Rating.SOMEWHAT_GOOD,
             'überzeugend': Rating.SOMEWHAT_GOOD,
             'vorzüglich': Rating.VERY_GOOD,
+            'weiterempfehlen': Rating.VERY_GOOD,
             'wunderbar': Rating.VERY_GOOD,
             'zufrieden': Rating.SOMEWHAT_GOOD
         }
@@ -345,6 +349,7 @@ class GermanSentiment(LanguageSentiment):
             'ist spitze': Rating.VERY_GOOD,
             'könnte etwas Liebe vertragen': Rating.SOMEWHAT_BAD,
             'luft nach oben': Rating.SOMEWHAT_GOOD,
+            'vom Hocker gerissen': Rating.VERY_GOOD,
             'weiter so!': Rating.GOOD,
             'wenig berauschend': Rating.SOMEWHAT_BAD,
             'würde wieder': Rating.GOOD,
